@@ -1,0 +1,1 @@
+<DECORATED><?= $content ?></DECORATED>
