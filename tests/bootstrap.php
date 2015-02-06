@@ -16,6 +16,7 @@ use ICanBoogie\Object;
 use ICanBoogie\Prototype;
 use ICanBoogie\Render;
 use ICanBoogie\Render\TemplateResolver;
+use ICanBoogie\Render\BasicTemplateResolver;
 use ICanBoogie\Routing\Controller;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -26,7 +27,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $app = new Object;
 $app->events = Events::get();
-$app->events->attach(function(TemplateResolver\AlterEvent $event, TemplateResolver $target) {
+$app->events->attach(function(TemplateResolver\AlterEvent $event, BasicTemplateResolver $target) {
 
 	$target->add_path(__DIR__ . '/templates');
 

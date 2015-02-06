@@ -1,6 +1,6 @@
 # View
 
-[![Release](https://img.shields.io/github/release/ICanBoogie/View.svg)](https://github.com/ICanBoogie/View/releases)
+[![Release](https://img.shields.io/packagist/v/icanboogie/view.svg)](https://github.com/ICanBoogie/View/releases)
 [![Build Status](https://img.shields.io/travis/ICanBoogie/View/master.svg)](http://travis-ci.org/ICanBoogie/View)
 [![HHVM](https://img.shields.io/hhvm/icanboogie/view.svg)](http://hhvm.h4cc.de/package/icanboogie/view)
 [![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/View/master.svg)](https://scrutinizer-ci.com/g/ICanBoogie/View)
@@ -36,8 +36,8 @@ of [View][] instances, as well the the `view` property of [Controller][] instanc
 
 use ICanBoogie\Prototype;
 use ICanBoogie\Render;
-use ICanBoogie\Render\TemplateResolver;
 use ICanBoogie\Routing\Controller;
+use ICanBoogie\View;
 
 Prototype::configure([
 

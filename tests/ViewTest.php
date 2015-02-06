@@ -14,11 +14,8 @@ namespace ICanBoogie\View;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\Render\TemplateNotFound;
-use ICanBoogie\Render\TemplateResolver;
+use ICanBoogie\Render\BasicTemplateResolver;
 use ICanBoogie\Routing\Route;
-use ICanBoogie\View\ViewTest\A;
-use ICanBoogie\View\ViewTest\ControllerWithJsonResponse;
-use ICanBoogie\View\ViewTest\ControllerWithLayout;
 
 class ViewTest extends \PHPUnit_Framework_TestCase
 {
@@ -438,7 +435,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	public function test_add_path()
 	{
 		$path = __DIR__;
-		$template_resolver = new TemplateResolver;
+		$template_resolver = new BasicTemplateResolver;
 		$view = new View($this->controller_stub);
 		$view->template_resolver = $template_resolver;
 		$view->add_path($path);
