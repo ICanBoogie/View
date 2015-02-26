@@ -28,12 +28,19 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 	private $controller_stub;
 
+	private $routes;
+
 	public function setUp()
 	{
 		$this->controller_stub = $this
 			->getMockBuilder('ICanBoogie\Routing\Controller')
 			->disableOriginalConstructor()
 			->getMockForAbstractClass();
+
+		$this->routes = $this
+			->getMockBuilder('ICanBoogie\Routing\Routes')
+			->disableOriginalConstructor()
+			->getMock();
 	}
 
 	public function test_get_controller()
@@ -75,9 +82,16 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_get_template()
 	{
+		$routes = $this
+			->getMockBuilder('ICanBoogie\Routing\Routes')
+			->disableOriginalConstructor()
+			->getMock();
+
+		/* @var $routes \ICanBoogie\Routing\Routes */
+
 		$t1 = 'template' . uniqid();
 
-		$r1 = new Route('/', [ 'template' => $t1 ]);
+		$r1 = new Route($routes, '/', [ 'template' => $t1 ]);
 
 		$c1 = $this
 			->getMockBuilder('ICanBoogie\Routing\Controller')
@@ -158,6 +172,9 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @dataProvider provide_test_get_layout
+	 *
+	 * @param $view
+	 * @param $expected
 	 */
 	public function test_get_layout($view, $expected)
 	{
@@ -166,13 +183,20 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_get_layout()
 	{
+		$routes = $this
+			->getMockBuilder('ICanBoogie\Routing\Routes')
+			->disableOriginalConstructor()
+			->getMock();
+
+		/* @var $routes \ICanBoogie\Routing\Routes */
+
 		#
 		# $controller->route->layout
 		#
 
 		$t1 = 'layout' . uniqid();
 
-		$r1 = new Route('/', [ 'layout' => $t1 ]);
+		$r1 = new Route($routes, '/', [ 'layout' => $t1 ]);
 
 		$c1 = $this
 			->getMockBuilder('ICanBoogie\Routing\Controller')
@@ -183,6 +207,8 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$c1->expects($this->once())
 			->method('get_route')
 			->willReturn($r1);
+
+		/* @var $c1 \ICanBoogie\Routing\Controller */
 
 		$v1 = new View($c1);
 
@@ -201,6 +227,8 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$c2->expects($this->once())
 			->method('get_route')
 			->willThrowException(new PropertyNotDefined('route'));
+
+		/* @var $c2 \ICanBoogie\Routing\Controller */
 
 		$c2->layout = $t2;
 
@@ -236,10 +264,9 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			->method('get_route')
 			->willReturn($c3_route);
 
+		/* @var $c3 \ICanBoogie\Routing\Controller */
+
 		$v3 = new View($c3);
-
-
-
 
 		#
 		# 'page'
@@ -540,7 +567,7 @@ EOT;
 	public function test_view_render()
 	{
 		$request = Request::from("/");
-		$request->context->route = new Route('/', [ 'layout' => null ]);
+		$request->context->route = new Route($this->routes, '/', [ 'layout' => null ]);
 
 		$controller = $this
 			->getMockBuilder('ICanBoogie\Routing\Controller')
@@ -561,7 +588,6 @@ EOT;
 	public function test_view_render_with_default_layout()
 	{
 		$request = Request::from("/");
-		$request->context->route = new Route('/', []);
 
 		$controller = $this
 			->getMockBuilder('ICanBoogie\Routing\Controller')
@@ -575,6 +601,9 @@ EOT;
 			});
 
 		/* @var $controller \ICanBoogie\Routing\Controller */
+
+		$request->context->route = new Route($this->routes, '/', []);
+
 		$response = $controller($request);
 		$this->assertEquals(<<<EOT
 <default>TESTING</default>
@@ -586,7 +615,7 @@ EOT
 	public function test_view_render_with_custom_layout()
 	{
 		$request = Request::from("/");
-		$request->context->route = new Route('/', [ 'layout' => 'custom' ]);
+		$request->context->route = new Route($this->routes, '/', [ 'layout' => 'custom' ]);
 
 		$controller = $this
 			->getMockBuilder('ICanBoogie\Routing\Controller')
@@ -613,7 +642,7 @@ EOT
 	public function test_controller_with_json_response()
 	{
 		$request = Request::from("/");
-		$request->context->route = new Route('/', [ ]);
+		$request->context->route = new Route($this->routes, '/', [ ]);
 
 		$controller = $this
 			->getMockBuilder('ICanBoogie\Routing\Controller')
