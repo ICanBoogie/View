@@ -1,6 +1,7 @@
 # customization
 
 PACKAGE_NAME = "ICanBoogie/View"
+PACKAGE_VERSION = "v0.3.2"
 
 # do not edit the following lines
 
@@ -24,17 +25,18 @@ test-coverage: vendor
 	@phpunit --coverage-html build/coverage
 
 doc: vendor
-	@mkdir -p "docs"
-
-	@apigen \
-	--source ./ \
-	--destination docs/ --title $(PACKAGE_NAME) \
+	@mkdir -p build/docs
+	@apigen generate \
+	--source lib \
 	--exclude "*/composer/*" \
-	--exclude "*/tests/*" \
-	--template-config /usr/share/php/data/ApiGen/templates/bootstrap/config.neon
+	--exclude "*/autoload.php" \
+	--destination build/docs/ \
+	--title "$(PACKAGE_NAME) $(PACKAGE_VERSION)" \
+	--template-theme "bootstrap" \
+	--debug
 
 clean:
-	@rm -fR docs
+	@rm -fR build
 	@rm -fR vendor
 	@rm -f composer.lock
 
