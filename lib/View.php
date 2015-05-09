@@ -11,7 +11,6 @@
 
 namespace ICanBoogie\View;
 
-use ICanBoogie\EventHook;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\PrototypeTrait;
