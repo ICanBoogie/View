@@ -388,7 +388,7 @@ cloned with the following command line:
 ## Documentation
 
 The package is documented as part of the [ICanBoogie][] framework
-[documentation](http://icanboogie.org/docs/). You can generate the documentation for the package and its dependencies with the `make doc` command. The documentation is generated in the `build/docs` directory. [ApiGen](http://apigen.org/) is required. The directory can later be cleaned with the `make clean` command.
+[documentation](http://api.icanboogie.org/view/). You can generate the documentation for the package and its dependencies with the `make doc` command. The documentation is generated in the `build/docs` directory. [ApiGen](http://apigen.org/) is required. The directory can later be cleaned with the `make clean` command.
 
 
 
@@ -419,10 +419,10 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [icanboogie/module]: https://github.com/ICanBoogie/Module
 [icanboogie/render]: https://github.com/ICanBoogie/Render
 [icybee/patron-view-support]: https://github.com/Icybee/PatronViewSupport 
-[ActionController]: http://icanboogie.org/docs/class-ICanBoogie.Routing.ActionController.html
-[Controller]: http://icanboogie.org/docs/class-ICanBoogie.Routing.Controller.html
+[ActionController]: http://api.icanboogie.org/routing/class-ICanBoogie.Routing.ActionController.html
+[Controller]: http://api.icanboogie.org/routing/class-ICanBoogie.Routing.Controller.html
 [ICanBoogie]: https://github.com/ICanBoogie/ICanBoogie
-[Response]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Response.html
-[View]: http://icanboogie.org/docs/class-ICanBoogie.View.View.html
-[View\BeforeRenderEvent]: http://icanboogie.org/docs/class-ICanBoogie.View.View.BeforeRenderEvent.html
-[View\AlterEvent]: http://icanboogie.org/docs/class-ICanBoogie.View.View.AlterEvent.html
+[Response]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Response.html
+[View]: http://api.icanboogie.org/view/class-ICanBoogie.View.View.html
+[View\BeforeRenderEvent]: http://api.icanboogie.org/view/class-ICanBoogie.View.View.BeforeRenderEvent.html
+[View\AlterEvent]: http://api.icanboogie.org/view/class-ICanBoogie.View.View.AlterEvent.html
