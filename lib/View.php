@@ -200,11 +200,6 @@ class View implements \ArrayAccess
 	}
 
 	/**
-	 * @var EventHook
-	 */
-	private $action_event_hook;
-
-	/**
 	 * An event hook is attached to the `action` event of the controller for late rendering,
 	 * which only happens if the response is `null`.
 	 *
@@ -218,9 +213,9 @@ class View implements \ArrayAccess
 		# The view is not rendered if the event's response is defined, which is the case when the
 	    # controller obtained a result after its execution.
 		#
-		$this->action_event_hook = $controller->events->attach(function(Controller\ActionEvent $event, Controller $target) use ($controller) {
+		$controller->events->attach_to($controller, function(Controller\ActionEvent $event, Controller $target) {
 
-			if ($event->result !== null || $controller != $target)
+			if ($event->result !== null)
 			{
 				return;
 			}

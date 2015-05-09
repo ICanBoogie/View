@@ -1,6 +1,6 @@
 # View
 
-[![Release](https://img.shields.io/packagist/v/icanboogie/view.svg)](https://github.com/ICanBoogie/View/releases)
+[![Release](https://img.shields.io/packagist/v/icanboogie/view.svg)](https://packagist.org/packages/icanboogie/view)
 [![Build Status](https://img.shields.io/travis/ICanBoogie/View/master.svg)](http://travis-ci.org/ICanBoogie/View)
 [![HHVM](https://img.shields.io/hhvm/icanboogie/view.svg)](http://hhvm.h4cc.de/package/icanboogie/view)
 [![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/View/master.svg)](https://scrutinizer-ci.com/g/ICanBoogie/View)
@@ -29,7 +29,7 @@ If you use the **icanboogie/view** package with [ICanBoogie][] you can simply re
 [icanboogie/bind-view][] and let it deal with the bindings.
 
 The following code demonstrates how to bind the `engines` and `template_resolver` properties
-of [View][] instances, as well the the `view` property of [Controller][] instances.
+of [View][] instances, as well the `view` property of [Controller][] instances.
 
 ```php
 <?php
@@ -93,10 +93,10 @@ use ICanBoogie\Routing\ActionController;
 
 class ArticlesController extends ActionController
 {
-	protected function any_index()
+	protected function action_any_index()
 	{
-		$this->view->content = $this->model->own->visible->ordered->limit(10);
-		$this->view['title'] = "Ten last articles";
+		$this->view->content = $this->model->visible->ordered->limit(10);
+		$this->view['title'] = "Last ten articles";
 	}
 }
 ```
@@ -179,9 +179,9 @@ template and define "admin" as layout:
 
 	// …
 
-	protected function any_index()
+	protected function action_any_index()
 	{
-		$this->view->content = $this->model->own->visible->ordered->limit(10);
+		$this->view->content = $this->model->visible->ordered->limit(10);
 		$this->view->template = null;
 		$this->view->layout = "admin";
 	}
@@ -222,12 +222,12 @@ use ICanBoogie\View\View;
 
 $app->events->attach(function(View\BeforeRenderEvent $event, View $view) use ($app) {
 
-	$view['alters'] = $app->alerts;
+	$view['alerts'] = $app->alerts;
 	$view['user'] = $app->user;
 
 	if ($app->is_mobile)
 	{
-		$view->layout = 'mobile';
+		$view->layout .= '.mobile';
 	}
 
 });
@@ -240,7 +240,7 @@ $app->events->attach(function(View\BeforeRenderEvent $event, View $view) use ($a
 ## Rendering JSON and stuff
 
 Views are often used to render HTML, but they can also render JSON, XML and other nice things,
-and its rather simple since all you have to do is alter the [Response][] instance of your
+and it's rather simple since all you have to do is alter the [Response][] instance of your
 controller according to what you are rendering. This is not really a View feature, but its
 something to remember.
 
@@ -260,7 +260,7 @@ echo json_encode($content)
 
 	// …
 
-	protected function any_json()
+	protected function action_any_json()
 	{
 		$this->view->content = $this->model->one;
 		$this->view->template = 'json';
@@ -277,7 +277,7 @@ echo json_encode($content)
 ## Cancelling a view
 
 A view can be _cancelled_ when you need to return a different result or when you want to cancel
-its rendering. View are automatically cancelled when the controller they are attached to returns
+its rendering. Views are automatically cancelled when the controller they are attached to returns
 a result. A view can also be cancelled by setting the `view` property of its controller to `null`.
 
 The following example demonstrates how views can be cancelled using these methods:
@@ -289,22 +289,23 @@ use ICanBoogie\Routing\ActionController;
 
 class ArticlesController extends ActionController
 {
-	protected function any_index()
+	protected function action_any_index()
 	{
-		$this->view->content = $this->model->own->visible->ordered->limit(10);
-		$this->view['title'] = "Ten last articles";
+		$this->view->content = $this->model->visible->ordered->limit(10);
+		$this->view['title'] = "Last ten articles";
 	}
 
-	protected function any_json()
+	protected function action_any_json()
 	{
-		$this->any_index();
-		// The view is cancelled to return a JSON
+		$this->action_any_index();
+		$this->response->content_type = "application/json";
+		// The view is cancelled to return JSON text
 		return json_encode($this->view->content);
 	}
 
-	protected function head_index()
+	protected function action_head_index()
 	{
-		$this->any_index();
+		$this->action_any_index();
 		// The view is cancelled although no result is returned
 		$this->view = null;
 	}
@@ -362,7 +363,7 @@ The package requires PHP 5.4 or later.
 The recommended way to install this package is through [Composer](http://getcomposer.org/):
 
 ```
-composer require icanboogie/view
+$ composer require icanboogie/view
 ```
 
 The following package is required, you might want to check it out:
