@@ -28,15 +28,11 @@ doc: vendor
 	@mkdir -p build/docs
 	@apigen generate \
 	--source lib \
-	--exclude "*/composer/*" \
-	--exclude "*/autoload.php" \
 	--destination build/docs/ \
-	--title "$(PACKAGE_NAME) $(PACKAGE_VERSION)" \
-	--template-theme "bootstrap" \
-	--debug
+	--title "$(PACKAGE_NAME) v$(PACKAGE_VERSION)" \
+	--template-theme "bootstrap"
 
 clean:
 	@rm -fR build
 	@rm -fR vendor
 	@rm -f composer.lock
-

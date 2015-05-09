@@ -202,10 +202,10 @@ class View implements \ArrayAccess
 	/**
 	 * @var EventHook
 	 */
-	private $respond_event_hook;
+	private $action_event_hook;
 
 	/**
-	 * An event hook is attached to the `respond` event of the controller for late rendering,
+	 * An event hook is attached to the `action` event of the controller for late rendering,
 	 * which only happens if the response is `null`.
 	 *
 	 * @param Controller $controller The controller that invoked the view.
@@ -218,16 +218,16 @@ class View implements \ArrayAccess
 		# The view is not rendered if the event's response is defined, which is the case when the
 	    # controller obtained a result after its execution.
 		#
-		$this->respond_event_hook = $controller->events->attach(function(Controller\RespondEvent $event, Controller $target) use ($controller) {
+		$this->action_event_hook = $controller->events->attach(function(Controller\ActionEvent $event, Controller $target) use ($controller) {
 
-			if ($event->response !== null || $controller != $target)
+			if ($event->result !== null || $controller != $target)
 			{
 				return;
 			}
 
 			new View\BeforeRender($this);
 
-			$event->response = $this->render();
+			$event->result = $this->render();
 
 		});
 	}

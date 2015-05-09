@@ -571,11 +571,11 @@ EOT;
 
 		$controller = $this
 			->getMockBuilder('ICanBoogie\Routing\Controller')
-			->setMethods([ 'respond' ])
+			->setMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
 			->expects($this->once())
-			->method('respond')
+			->method('action')
 			->willReturnCallback(function() use ($controller) {
 				$controller->view->content = ViewTest::FIXTURE_CONTENT;
 			});
@@ -591,11 +591,11 @@ EOT;
 
 		$controller = $this
 			->getMockBuilder('ICanBoogie\Routing\Controller')
-			->setMethods([ 'respond' ])
+			->setMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
 			->expects($this->once())
-			->method('respond')
+			->method('action')
 			->willReturnCallback(function() use ($controller) {
 				$controller->view->content = ViewTest::FIXTURE_CONTENT;
 			});
@@ -619,11 +619,11 @@ EOT
 
 		$controller = $this
 			->getMockBuilder('ICanBoogie\Routing\Controller')
-			->setMethods([ 'respond' ])
+			->setMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
 			->expects($this->once())
-			->method('respond')
+			->method('action')
 			->willReturnCallback(\Closure::bind(function() {
 
 				$this->view->content = ViewTest::FIXTURE_CONTENT;
@@ -646,11 +646,11 @@ EOT
 
 		$controller = $this
 			->getMockBuilder('ICanBoogie\Routing\Controller')
-			->setMethods([ 'respond' ])
+			->setMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
 			->expects($this->once())
-			->method('respond')
+			->method('action')
 			->willReturnCallback(\Closure::bind(function() {
 
 				$this->view->content = [ 1 => "one", 2 => "two" ];

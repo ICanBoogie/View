@@ -81,7 +81,7 @@ Prototype::configure([
 
 Views are associated with controllers through the lazy getter `view`, thus a simple `$this->view`
 is all that is required to enable view features inside a controller. The view then waits for
-the `Controller::respond` event to perform its rendering.
+the `Controller::action` event to perform its rendering.
 
 The following example demonstrates how a query of some articles is set as the view content,
 a title is also added to the view variables:
@@ -396,7 +396,7 @@ The package is documented as part of the [ICanBoogie][] framework
 
 ## Testing
 
-The test suite is ran with the `make test` command. [PHPUnit](https://phpunit.de/) and [Composer](http://getcomposer.org/) need to be globally available to run the suite. The command installs dependencies as required. The `make test-coverage` command runs test suite and also creates an HTML coverage report in "build/coverage". The directory can later be cleaned with the `make clean` command.
+The test suite is ran with the `make test` command. [PHPUnit](https://phpunit.de/) and [Composer](http://getcomposer.org/) need to be globally available to run the suite. The command installs dependencies as required. The `make test-coverage` command runs test suite and also creates an HTML coverage report in `build/coverage`. The directory can later be cleaned with the `make clean` command.
 
 The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
