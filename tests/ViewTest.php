@@ -127,7 +127,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$t3 = "$c3_name/$c3_action";
 
 		$c3 = $this
-			->getMockBuilder('ICanBoogie\Routing\ActionController')
+			->getMockBuilder('ICanBoogie\Routing\Controller')
 			->disableOriginalConstructor()
 			->setMethods([ 'get_route', 'get_name', 'get_action' ])
 			->getMockForAbstractClass();

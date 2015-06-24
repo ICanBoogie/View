@@ -410,7 +410,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 ## License
 
-**icanboogie/View** is licensed under the New BSD License - See the [LICENSE](LICENSE) file for details.
+**icanboogie/view** is licensed under the New BSD License - See the [LICENSE](LICENSE) file for details.
 
 
 

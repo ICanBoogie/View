@@ -67,6 +67,11 @@ class View implements \ArrayAccess
 	 */
 	private $controller;
 
+	/**
+	 * @see $controller
+	 *
+	 * @return Controller
+	 */
 	protected function get_controller()
 	{
 		return $this->controller;
@@ -79,16 +84,31 @@ class View implements \ArrayAccess
 	 */
 	private $variables = [];
 
+	/**
+	 * @see $variables
+	 *
+	 * @return array
+	 */
 	protected function get_variables()
 	{
 		return $this->variables;
 	}
 
+	/**
+	 * @see $content
+	 *
+	 * @return mixed
+	 */
 	protected function get_content()
 	{
 		return isset($this->variables['content']) ? $this->variables['content'] : null;
 	}
 
+	/**
+	 * @see $content
+	 *
+	 * @param mixed $content
+	 */
 	protected function set_content($content)
 	{
 		$this->variables['content'] = $content;
@@ -317,6 +337,8 @@ class View implements \ArrayAccess
 	 */
 	protected function resolve_template($name, $prefix, &$tries = [])
 	{
+		$tries = $tries ?: [];
+
 		if ($prefix)
 		{
 			$name = TemplateName::from($name);
@@ -403,7 +425,7 @@ class View implements \ArrayAccess
 		{
 			$type_name = self::$template_type_name[$type];
 
-			throw new TemplateNotFound("There is no $type_name matching <q>$template</q>", $tries);
+			throw new TemplateNotFound("There is no $type_name matching <q>$template</q>.", $tries);
 		}
 
 		list($thisArg, $variables) = $this->prepare_engine_args($content, $type);
