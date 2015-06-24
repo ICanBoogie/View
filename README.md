@@ -432,7 +432,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [icybee/patron-view-support]: https://github.com/Icybee/PatronViewSupport 
 [ActionController]: http://api.icanboogie.org/routing/class-ICanBoogie.Routing.ActionController.html
 [Controller]: http://api.icanboogie.org/routing/class-ICanBoogie.Routing.Controller.html
-[ControllerBindings]: http://api.icanboogie.org/routing/class-ICanBoogie.View.ControllerBindings.html
+[ControllerBindings]: http://api.icanboogie.org/view/class-ICanBoogie.View.ControllerBindings.html
 [ICanBoogie]: https://github.com/ICanBoogie/ICanBoogie
 [Response]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Response.html
 [View]: http://api.icanboogie.org/view/class-ICanBoogie.View.View.html
