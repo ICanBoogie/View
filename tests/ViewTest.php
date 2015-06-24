@@ -668,4 +668,33 @@ EOT
 		$this->assertEquals("application/json", $response->content_type);
 		$this->assertEquals('{"1":"one","2":"two"}', $response->body);
 	}
+
+	public function test_on_action_should_preserve_result()
+	{
+		$view = $this
+			->getMockBuilder('ICanBoogie\View\View')
+			->disableOriginalConstructor()
+			->setMethods([ 'render' ])
+			->getMock();
+		$view
+			->expects($this->never())
+			->method('render');
+
+		$result = uniqid();
+
+		$event = $this
+			->getMockBuilder('ICanBoogie\Routing\Controller\ActionEvent')
+			->disableOriginalConstructor()
+			->getMock();
+
+		/* @var $event \ICanBoogie\Routing\Controller\ActionEvent */
+
+		$event->result = $result;
+
+		$on_action = new \ReflectionMethod($view, 'on_action');
+		$on_action->setAccessible(true);
+		$on_action->invoke($view, $event);
+
+		$this->assertSame($result, $event->result);
+	}
 }

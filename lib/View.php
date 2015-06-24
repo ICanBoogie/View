@@ -11,13 +11,12 @@
 
 namespace ICanBoogie\View;
 
-use ICanBoogie\EventHook;
+use ICanBoogie\Events;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\PrototypeTrait;
 use ICanBoogie\Render\TemplateName;
 use ICanBoogie\Render\TemplateNotFound;
-use ICanBoogie\Routing\ActionController;
 use ICanBoogie\Routing\Controller;
 
 /**
@@ -250,20 +249,9 @@ class View implements \ArrayAccess
 	{
 		$this->controller = $controller;
 
-		#
-		# The view is not rendered if the event's response is defined, which is the case when the
-	    # controller obtained a result after its execution.
-		#
-		$controller->events->attach_to($controller, function(Controller\ActionEvent $event, Controller $target) {
+		Events::get()->attach_to($controller, function (Controller\ActionEvent $event, Controller $target) {
 
-			if ($event->result !== null)
-			{
-				return;
-			}
-
-			new View\BeforeRender($this);
-
-			$event->result = $this->render();
+			$this->on_action($event);
 
 		});
 	}
@@ -442,5 +430,24 @@ class View implements \ArrayAccess
 
 		return [ $content, $variables ];
 	}
+
+	/**
+	 * Renders the view on `Controller::action` event.
+	 *
+	 * **Note:** The view is not rendered if the event's response is defined, which is the case
+	 * when the controller obtained a result after its execution.
+	 *
+	 * @param Controller\ActionEvent $event
+	 */
+	protected function on_action(Controller\ActionEvent $event)
+	{
+		if ($event->result !== null)
+		{
+			return;
+		}
+
+		new View\BeforeRender($this);
+
+		$event->result = $this->render();
+	}
 }
-                                                                                                                          
