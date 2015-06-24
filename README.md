@@ -362,7 +362,7 @@ view is rendered. Event hooks may use this event to alter the view before it is 
 
 ## Requirements
 
-The package requires PHP 5.4 or later.
+The package requires PHP 5.5 or later.
 
 
 

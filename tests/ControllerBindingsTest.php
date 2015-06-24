@@ -11,20 +11,22 @@
 
 namespace ICanBoogie\View;
 
+use ICanBoogie\View\ControllerBindingsTest\BoundController;
+
 class ControllerBindingsTest extends \PHPUnit_Framework_TestCase
 {
 	public function test_lazy_get_view()
 	{
 		$controller = $this
-			->getMockBuilder('ICanBoogie\View\ControllerBindingsTest\BoundController')
+			->getMockBuilder(BoundController::class)
 			->disableOriginalConstructor()
 			->getMockForAbstractClass();
 
-		/* @var $controller \ICanBoogie\View\ControllerBindingsTest\BoundController */
+		/* @var $controller BoundController */
 
 		$view = $controller->view;
 
-		$this->assertInstanceOf('ICanBoogie\View\View', $view);
+		$this->assertInstanceOf(View::class, $view);
 		$this->assertSame($view, $controller->view);
 		$this->assertObjectHasAttribute('view', $controller);
 	}

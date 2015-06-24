@@ -40,7 +40,7 @@ Events::get()->attach(function(TemplateResolver\AlterEvent $event, BasicTemplate
 
 Prototype::configure([
 
-	'ICanBoogie\Routing\Controller' => [
+	Controller::class => [
 
 		'get_app' => function() use ($app) {
 
@@ -60,7 +60,7 @@ Prototype::configure([
 
 	],
 
-	'ICanBoogie\View\View' => [
+	View::class => [
 
 		'lazy_get_engines' => function(){
 

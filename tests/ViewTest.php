@@ -12,11 +12,13 @@
 namespace ICanBoogie\View;
 
 use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Response;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\Render\TemplateNotFound;
 use ICanBoogie\Render\BasicTemplateResolver;
 use ICanBoogie\Routing\Controller;
 use ICanBoogie\Routing\Route;
+use ICanBoogie\Routing\Routes;
 
 class ViewTest extends \PHPUnit_Framework_TestCase
 {
@@ -37,12 +39,12 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	public function setUp()
 	{
 		$this->controller = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
 			->getMockForAbstractClass();
 
 		$this->routes = $this
-			->getMockBuilder('ICanBoogie\Routing\Routes')
+			->getMockBuilder(Routes::class)
 			->disableOriginalConstructor()
 			->getMock();
 	}
@@ -87,18 +89,18 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	public function provide_test_get_template()
 	{
 		$routes = $this
-			->getMockBuilder('ICanBoogie\Routing\Routes')
+			->getMockBuilder(Routes::class)
 			->disableOriginalConstructor()
 			->getMock();
 
-		/* @var $routes \ICanBoogie\Routing\Routes */
+		/* @var $routes Routes */
 
 		$t1 = 'template' . uniqid();
 
 		$r1 = new Route($routes, '/', [ 'template' => $t1 ]);
 
 		$c1 = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'get_route' ])
 			->getMockForAbstractClass();
@@ -112,7 +114,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$t2 = 'template' . uniqid();
 
 		$c2 = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'get_route' ])
 			->getMockForAbstractClass();
@@ -133,7 +135,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$t3 = "$c3_name/$c3_action";
 
 		$c3 = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'get_route', 'get_name', 'get_action' ])
 			->getMockForAbstractClass();
@@ -155,7 +157,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$t4 = null;
 
 		$c4 = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'get_route' ])
 			->getMockForAbstractClass();
@@ -190,11 +192,11 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	public function provide_test_get_layout()
 	{
 		$routes = $this
-			->getMockBuilder('ICanBoogie\Routing\Routes')
+			->getMockBuilder(Routes::class)
 			->disableOriginalConstructor()
 			->getMock();
 
-		/* @var $routes \ICanBoogie\Routing\Routes */
+		/* @var $routes Routes */
 
 		#
 		# $controller->route->layout
@@ -205,7 +207,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$r1 = new Route($routes, '/', [ 'layout' => $t1 ]);
 
 		$c1 = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'get_route' ])
 			->getMockForAbstractClass();
@@ -225,7 +227,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$t2 = 'layout' . uniqid();
 
 		$c2 = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'get_route' ])
 			->getMockForAbstractClass();
@@ -247,7 +249,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$t3 = 'admin';
 
 		$c3_route = $this
-			->getMockBuilder('ICanBoogie\Routing\Route')
+			->getMockBuilder(Route::class)
 			->disableOriginalConstructor()
 			->setMethods([ '__get' ])
 			->getMock();
@@ -261,7 +263,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			});
 
 		$c3 = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'get_route' ])
 			->getMockForAbstractClass();
@@ -297,7 +299,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$expected = 'home';
 
 		$route = $this
-			->getMockBuilder('ICanBoogie\Routing\Route')
+			->getMockBuilder(Route::class)
 			->disableOriginalConstructor()
 			->setMethods([ '__get' ])
 			->getMock();
@@ -318,7 +320,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			});
 
 		$controller = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'get_route' ])
 			->getMockForAbstractClass();
@@ -327,7 +329,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			->method('get_route')
 			->willReturn($route);
 
-		$view = $this->getMockBuilder('ICanBoogie\View\View')
+		$view = $this->getMockBuilder(View::class)
 			->setConstructorArgs([ $controller ])
 			->setMethods([ 'resolve_template' ])
 			->getMock();
@@ -347,7 +349,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	private function provide_test_get_layout_case4()
 	{
 		$route = $this
-			->getMockBuilder('ICanBoogie\Routing\Route')
+			->getMockBuilder(Route::class)
 			->disableOriginalConstructor()
 			->setMethods([ '__get' ])
 			->getMock();
@@ -368,7 +370,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			});
 
 		$controller = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'get_route' ])
 			->getMockForAbstractClass();
@@ -377,7 +379,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			->method('get_route')
 			->willReturn($route);
 
-		$view = $this->getMockBuilder('ICanBoogie\View\View')
+		$view = $this->getMockBuilder(View::class)
 			->setConstructorArgs([ $controller ])
 			->setMethods([ 'resolve_template' ])
 			->getMock();
@@ -401,7 +403,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	private function provide_test_get_layout_case5()
 	{
 		$route = $this
-			->getMockBuilder('ICanBoogie\Routing\Route')
+			->getMockBuilder(Route::class)
 			->disableOriginalConstructor()
 			->setMethods([ '__get' ])
 			->getMock();
@@ -422,7 +424,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			});
 
 		$controller = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'get_route' ])
 			->getMockForAbstractClass();
@@ -431,7 +433,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			->method('get_route')
 			->willReturn($route);
 
-		$view = $this->getMockBuilder('ICanBoogie\View\View')
+		$view = $this->getMockBuilder(View::class)
 			->setConstructorArgs([ $controller ])
 			->setMethods([ 'resolve_template' ])
 			->getMock();
@@ -479,7 +481,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	public function test_view_getter()
 	{
 		$controller = $this->controller;
-		$this->assertInstanceOf('ICanBoogie\View\View', $controller->view);
+		$this->assertInstanceOf(View::class, $controller->view);
 	}
 
 	public function test_should_throw_exception_if_template_doesnot_exists()
@@ -487,7 +489,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$template = 'undefined' . uniqid();
 
 		$view = $this
-			->getMockBuilder('ICanBoogie\View\View')
+			->getMockBuilder(View::class)
 			->setConstructorArgs([ $this->controller ])
 			->setMethods([ 'get_template', 'get_layout' ])
 			->getMock();
@@ -515,7 +517,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$template = 'undefined' . uniqid();
 
 		$view = $this
-			->getMockBuilder('ICanBoogie\View\View')
+			->getMockBuilder(View::class)
 			->setConstructorArgs([ $this->controller ])
 			->setMethods([ 'get_template', 'get_layout' ])
 			->getMock();
@@ -541,7 +543,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	public function test_render_with_decorator()
 	{
 		$view = $this
-			->getMockBuilder('ICanBoogie\View\View')
+			->getMockBuilder(View::class)
 			->setConstructorArgs([ $this->controller ])
 			->setMethods([ 'get_template', 'get_layout' ])
 			->getMock();
@@ -579,7 +581,7 @@ EOT;
 		$request->context->route = new Route($this->routes, '/', [ 'layout' => null ]);
 
 		$controller = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->setMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
@@ -600,7 +602,7 @@ EOT;
 		$request = Request::from("/");
 
 		$controller = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->setMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
@@ -629,7 +631,7 @@ EOT
 		$request->context->route = new Route($this->routes, '/', [ 'layout' => 'custom' ]);
 
 		$controller = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->setMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
@@ -657,7 +659,7 @@ EOT
 		$request->context->route = new Route($this->routes, '/', [ ]);
 
 		$controller = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller')
+			->getMockBuilder(Controller::class)
 			->setMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
@@ -677,7 +679,7 @@ EOT
 		/* @var $controller Controller */
 		$response = $controller($request);
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\Response', $response);
+		$this->assertInstanceOf(Response::class, $response);
 		$this->assertEquals("application/json", $response->content_type);
 		$this->assertEquals('{"1":"one","2":"two"}', $response->body);
 	}
@@ -685,7 +687,7 @@ EOT
 	public function test_on_action_should_preserve_result()
 	{
 		$view = $this
-			->getMockBuilder('ICanBoogie\View\View')
+			->getMockBuilder(View::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'render' ])
 			->getMock();
@@ -696,7 +698,7 @@ EOT
 		$result = uniqid();
 
 		$event = $this
-			->getMockBuilder('ICanBoogie\Routing\Controller\ActionEvent')
+			->getMockBuilder(Controller\ActionEvent::class)
 			->disableOriginalConstructor()
 			->getMock();
 
