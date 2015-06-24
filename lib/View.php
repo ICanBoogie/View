@@ -32,6 +32,8 @@ use ICanBoogie\Routing\Controller;
  * @property mixed $content The content of the view.
  * @property string $layout The name of the layout that should decorate the content.
  * @property string $template The name of the template that should render the content.
+ * @property-read callable[] $layout_resolvers @internal
+ * @property-read callable[] $template_resolvers @internal
  */
 class View implements \ArrayAccess
 {
@@ -102,8 +104,8 @@ class View implements \ArrayAccess
 	 *
 	 * - The `template` property of the route.
 	 * - The `template` property of the controller.
-	 * - If the controller is an instance of {@link ActionController},
-	 * `$controller->name . "/" $controller->action`.
+	 * - The `{$controller->name}/{$controller->action}`, if the controller has an `action`
+	 * property.
 	 *
 	 * @return string|null
 	 */
@@ -111,34 +113,54 @@ class View implements \ArrayAccess
 	{
 		$controller = $this->controller;
 
-		try
+		foreach ($this->template_resolvers as $provider)
 		{
-			return $controller->route->template;
-		}
-		catch (PropertyNotDefined $e)
-		{
-			#
-			# The route nay not define a `template` property.
-			#
-		}
+			try
+			{
+				return $provider($controller);
+			}
+			catch (PropertyNotDefined $e)
+			{
+				#
+				# Resolver failed, we continue with the next.
+				#
+			}
 
-		try
-		{
-			return $controller->template;
-		}
-		catch (PropertyNotDefined $e)
-		{
-			#
-			# The controller may not define a `template` property.
-			#
-		}
-
-		if ($controller instanceof ActionController)
-		{
-			return $controller->name . "/" . $controller->action;
 		}
 
 		return null;
+	}
+
+	/**
+	 * Returns an array of callable used to resolve the {@link $template} property.
+	 *
+	 * @return callable[]
+	 *
+	 * @internal
+	 */
+	protected function get_template_resolvers()
+	{
+		return [
+
+			function ($controller) {
+
+				return $controller->route->template;
+
+			},
+
+			function ($controller) {
+
+				return $controller->template;
+
+			},
+
+			function ($controller) {
+
+				return $controller->name . "/" . $controller->action;
+
+			}
+
+		];
 	}
 
 	/**
@@ -159,26 +181,19 @@ class View implements \ArrayAccess
 	{
 		$controller = $this->controller;
 
-		try
+		foreach ($this->layout_resolvers as $resolver)
 		{
-			return $controller->route->layout;
-		}
-		catch (PropertyNotDefined $e)
-		{
-			#
-			# The route nay not define a `layout` property.
-			#
-		}
+			try
+			{
+				return $resolver($controller);
+			}
+			catch (PropertyNotDefined $e)
+			{
+				#
+				# Resolver failed, we continue with the next.
+				#
+			}
 
-		try
-		{
-			return $controller->layout;
-		}
-		catch (PropertyNotDefined $e)
-		{
-			#
-			# The controller nay not define a `layout` property.
-			#
 		}
 
 		if (strpos($controller->route->id, "admin:") === 0)
@@ -197,6 +212,32 @@ class View implements \ArrayAccess
 		}
 
 		return 'default';
+	}
+
+	/**
+	 * Returns an array of callable used to resolve the {@link $template} property.
+	 *
+	 * @return callable[]
+	 *
+	 * @internal
+	 */
+	protected function get_layout_resolvers()
+	{
+		return [
+
+			function ($controller) {
+
+				return $controller->route->layout;
+
+			},
+
+			function ($controller) {
+
+				return $controller->layout;
+
+			}
+
+		];
 	}
 
 	/**
@@ -402,3 +443,4 @@ class View implements \ArrayAccess
 		return [ $content, $variables ];
 	}
 }
+                                                                                                                          
