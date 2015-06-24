@@ -15,6 +15,7 @@ use ICanBoogie\HTTP\Request;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\Render\TemplateNotFound;
 use ICanBoogie\Render\BasicTemplateResolver;
+use ICanBoogie\Routing\Controller;
 use ICanBoogie\Routing\Route;
 
 class ViewTest extends \PHPUnit_Framework_TestCase
@@ -26,13 +27,16 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		return openssl_random_pseudo_bytes($length);
 	}
 
-	private $controller_stub;
+	/**
+	 * @var Controller|ControllerBindings
+	 */
+	private $controller;
 
 	private $routes;
 
 	public function setUp()
 	{
-		$this->controller_stub = $this
+		$this->controller = $this
 			->getMockBuilder('ICanBoogie\Routing\Controller')
 			->disableOriginalConstructor()
 			->getMockForAbstractClass();
@@ -45,14 +49,14 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 	public function test_get_controller()
 	{
-		$controller = $this->controller_stub;
+		$controller = $this->controller;
 		$view = new View($controller);
 		$this->assertSame($controller, $view->controller);
 	}
 
 	public function test_get_variables()
 	{
-		$controller = $this->controller_stub;
+		$controller = $this->controller;
 		$content = self::generate_bytes();
 		$v1 = self::generate_bytes();
 		$v2 = self::generate_bytes();
@@ -116,6 +120,8 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$c2->expects($this->once())
 			->method('get_route')
 			->willThrowException(new PropertyNotDefined('route'));
+
+		/* @var $c2 Controller|ControllerBindings */
 
 		$c2->template = $t2;
 
@@ -208,7 +214,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			->method('get_route')
 			->willReturn($r1);
 
-		/* @var $c1 \ICanBoogie\Routing\Controller */
+		/* @var $c1 Controller */
 
 		$v1 = new View($c1);
 
@@ -228,7 +234,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			->method('get_route')
 			->willThrowException(new PropertyNotDefined('route'));
 
-		/* @var $c2 \ICanBoogie\Routing\Controller */
+		/* @var $c2 Controller|ControllerBindings */
 
 		$c2->layout = $t2;
 
@@ -264,7 +270,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			->method('get_route')
 			->willReturn($c3_route);
 
-		/* @var $c3 \ICanBoogie\Routing\Controller */
+		/* @var $c3 Controller */
 
 		$v3 = new View($c3);
 
@@ -440,7 +446,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 	public function test_array_interface()
 	{
-		$view = new View($this->controller_stub);
+		$view = new View($this->controller);
 		$this->assertFalse(isset($view['content']));
 		$expected = $this->generate_bytes();
 		$view['content'] = $expected;
@@ -455,7 +461,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_should_throw_exception_on_undefined_offset()
 	{
-		$view = new View($this->controller_stub);
+		$view = new View($this->controller);
 		$view[uniqid()];
 	}
 
@@ -463,7 +469,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	{
 		$path = __DIR__;
 		$template_resolver = new BasicTemplateResolver;
-		$view = new View($this->controller_stub);
+		$view = new View($this->controller);
 		$view->template_resolver = $template_resolver;
 		$view->add_path($path);
 
@@ -472,7 +478,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 	public function test_view_getter()
 	{
-		$controller = $this->controller_stub;
+		$controller = $this->controller;
 		$this->assertInstanceOf('ICanBoogie\View\View', $controller->view);
 	}
 
@@ -482,14 +488,15 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 		$view = $this
 			->getMockBuilder('ICanBoogie\View\View')
-			->setConstructorArgs([ $this->controller_stub ])
+			->setConstructorArgs([ $this->controller ])
 			->setMethods([ 'get_template', 'get_layout' ])
 			->getMock();
-
 		$view
 			->expects($this->once())
 			->method('get_template')
 			->willReturn($template);
+
+		/* @var $view View */
 
 		try
 		{
@@ -509,14 +516,15 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 		$view = $this
 			->getMockBuilder('ICanBoogie\View\View')
-			->setConstructorArgs([ $this->controller_stub ])
+			->setConstructorArgs([ $this->controller ])
 			->setMethods([ 'get_template', 'get_layout' ])
 			->getMock();
-
 		$view
 			->expects($this->once())
 			->method('get_layout')
 			->willReturn($template);
+
+		/* @var $view View */
 
 		try
 		{
@@ -534,14 +542,15 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	{
 		$view = $this
 			->getMockBuilder('ICanBoogie\View\View')
-			->setConstructorArgs([ $this->controller_stub ])
+			->setConstructorArgs([ $this->controller ])
 			->setMethods([ 'get_template', 'get_layout' ])
 			->getMock();
-
 		$view
 			->expects($this->once())
 			->method('get_template')
 			->willReturn('decorated');
+
+		/* @var $view View */
 
 		$content = 'MYCONTENT' . uniqid();
 		$v1 = 'V1' . uniqid();
@@ -577,10 +586,11 @@ EOT;
 			->expects($this->once())
 			->method('action')
 			->willReturnCallback(function() use ($controller) {
+				/* @var $controller Controller|ControllerBindings */
 				$controller->view->content = ViewTest::FIXTURE_CONTENT;
 			});
 
-		/* @var $controller \ICanBoogie\Routing\Controller */
+		/* @var $controller Controller */
 		$response = $controller($request);
 		$this->assertEquals(self::FIXTURE_CONTENT, $response);
 	}
@@ -597,10 +607,11 @@ EOT;
 			->expects($this->once())
 			->method('action')
 			->willReturnCallback(function() use ($controller) {
+				/* @var $controller Controller|ControllerBindings */
 				$controller->view->content = ViewTest::FIXTURE_CONTENT;
 			});
 
-		/* @var $controller \ICanBoogie\Routing\Controller */
+		/* @var $controller Controller */
 
 		$request->context->route = new Route($this->routes, '/', []);
 
@@ -626,11 +637,12 @@ EOT
 			->method('action')
 			->willReturnCallback(\Closure::bind(function() {
 
+				/* @var $this Controller|ControllerBindings */
 				$this->view->content = ViewTest::FIXTURE_CONTENT;
 
 			}, $controller));
 
-		/* @var $controller \ICanBoogie\Routing\Controller */
+		/* @var $controller Controller */
 		$response = $controller($request);
 		$this->assertEquals(<<<EOT
 <custom>TESTING</custom>
@@ -653,6 +665,7 @@ EOT
 			->method('action')
 			->willReturnCallback(\Closure::bind(function() {
 
+				/* @var $this Controller|ControllerBindings */
 				$this->view->content = [ 1 => "one", 2 => "two" ];
 				$this->view->template = "json";
 				$this->view->layout = null;
@@ -661,7 +674,7 @@ EOT
 
 			}, $controller));
 
-		/* @var $controller \ICanBoogie\Routing\Controller */
+		/* @var $controller Controller */
 		$response = $controller($request);
 
 		$this->assertInstanceOf('ICanBoogie\HTTP\Response', $response);
@@ -687,7 +700,7 @@ EOT
 			->disableOriginalConstructor()
 			->getMock();
 
-		/* @var $event \ICanBoogie\Routing\Controller\ActionEvent */
+		/* @var $event Controller\ActionEvent */
 
 		$event->result = $result;
 

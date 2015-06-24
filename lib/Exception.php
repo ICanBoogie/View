@@ -28,8 +28,6 @@ namespace ICanBoogie\View;
  *     // another type of exception
  * }
  * </pre>
- *
- * @package ICanBoogie\View
  */
 interface Exception
 {

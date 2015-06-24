@@ -22,12 +22,8 @@ use ICanBoogie\Routing\Controller;
 /**
  * A view.
  *
- * @package ICanBoogie\View
- *
  * @property-read Controller $controller The controller invoking the view.
  * @property-read array $variables The variables to pass to the template.
- * @property \ICanBoogie\Render\EngineCollection $engines
- * @property \ICanBoogie\Render\TemplateResolver $template_resolver
  * @property mixed $content The content of the view.
  * @property string $layout The name of the layout that should decorate the content.
  * @property string $template The name of the template that should render the content.
@@ -61,6 +57,7 @@ class View implements \ArrayAccess
 	];
 
 	use PrototypeTrait;
+	use ViewBindings;
 
 	/**
 	 * @var Controller

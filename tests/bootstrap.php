@@ -19,15 +19,16 @@ use ICanBoogie\Render\TemplateResolver;
 use ICanBoogie\Render\BasicTemplateResolver;
 use ICanBoogie\Routing\Controller;
 
-require __DIR__ . '/../vendor/autoload.php';
+$autoload = require __DIR__ . '/../vendor/autoload.php';
+$autoload->addPsr4('ICanBoogie\\View\\ControllerBindingsTest\\', __DIR__ . '/ControllerBindingsTest/');
 
 #
-# Building the tiniest app
+# Building the tiniest fake app for Controller
 #
 
 $app = new Object;
-$app->events = Events::get();
-$app->events->attach(function(TemplateResolver\AlterEvent $event, BasicTemplateResolver $target) {
+
+Events::get()->attach(function(TemplateResolver\AlterEvent $event, BasicTemplateResolver $target) {
 
 	$target->add_path(__DIR__ . '/templates');
 
@@ -41,7 +42,7 @@ Prototype::configure([
 
 	'ICanBoogie\Routing\Controller' => [
 
-		'lazy_get_app' => function() use ($app) {
+		'get_app' => function() use ($app) {
 
 			return $app;
 

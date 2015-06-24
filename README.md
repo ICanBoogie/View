@@ -81,7 +81,7 @@ Prototype::configure([
 
 Views are associated with controllers through the lazy getter `view`, thus a simple `$this->view`
 is all that is required to enable view features inside a controller. The view then waits for
-the `Controller::action` event to perform its rendering.
+the `Controller::action` event, to perform its rendering.
 
 The following example demonstrates how a query of some articles is set as the view content,
 a title is also added to the view variables:
@@ -89,11 +89,15 @@ a title is also added to the view variables:
 ```php
 <?php
 
-use ICanBoogie\Routing\ActionController;
+use ICanBoogie\Routing\Controller;
+use ICanBoogie\View\ControllerBindings as ViewBindings;
+use ICanBoogie\Module\ControllerBindings as ModuleBindings;
 
-class ArticlesController extends ActionController
+class ArticlesController extends Controller
 {
-	protected function action_any_index()
+	use Controller\ResourceTrait, ViewBindings, ModuleBindings;
+
+	protected function index()
 	{
 		$this->view->content = $this->model->visible->ordered->limit(10);
 		$this->view['title'] = "Last ten articles";
@@ -158,7 +162,7 @@ The template used to present the content of the view is resolved as follows:
 - From the `template` property of the view.
 - From the `template` property of the route.
 - From the `template` property of the controller.
-- If the controller is an [ActionController][], from its name and action e.g. "articles/show".
+- From the name and action of the controller, if the controller has an `action` property e.g. "articles/show".
 
 The layout used to decorate the template is resolved as follows:
 
@@ -179,7 +183,7 @@ template and define "admin" as layout:
 
 	// …
 
-	protected function action_any_index()
+	protected function index()
 	{
 		$this->view->content = $this->model->visible->ordered->limit(10);
 		$this->view->template = null;
@@ -285,10 +289,14 @@ The following example demonstrates how views can be cancelled using these method
 ```php
 <?php
 
-use ICanBoogie\Routing\ActionController;
+use ICanBoogie\Routing\Controller;
+use ICanBoogie\View\ControllerBindings as ViewBindings;
+use ICanBoogie\Module\ControllerBindings as ModuleBindings;
 
-class ArticlesController extends ActionController
+class ArticlesController extends Controller
 {
+	use Controller\ActionTrait, ViewBindings, ModuleBindings;
+
 	protected function action_any_index()
 	{
 		$this->view->content = $this->model->visible->ordered->limit(10);
@@ -317,6 +325,8 @@ class ArticlesController extends ActionController
 
 
 ## Prototype methods
+
+The following prototypes method are used. The [ControllerBindings][] and [ViewBindings][] may be used to help hinting code.
 
 - `ICanBoogie\Routing\Controller::lazy_get_view`: Returns the [View][] instance associated with
 the controller and also starts the view _magic_.
@@ -422,8 +432,10 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [icybee/patron-view-support]: https://github.com/Icybee/PatronViewSupport 
 [ActionController]: http://api.icanboogie.org/routing/class-ICanBoogie.Routing.ActionController.html
 [Controller]: http://api.icanboogie.org/routing/class-ICanBoogie.Routing.Controller.html
+[ControllerBindings]: http://api.icanboogie.org/routing/class-ICanBoogie.View.ControllerBindings.html
 [ICanBoogie]: https://github.com/ICanBoogie/ICanBoogie
 [Response]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Response.html
 [View]: http://api.icanboogie.org/view/class-ICanBoogie.View.View.html
+[ViewBindings]: http://api.icanboogie.org/view/class-ICanBoogie.View.ViewBindings.html
 [View\BeforeRenderEvent]: http://api.icanboogie.org/view/class-ICanBoogie.View.View.BeforeRenderEvent.html
 [View\AlterEvent]: http://api.icanboogie.org/view/class-ICanBoogie.View.View.AlterEvent.html
