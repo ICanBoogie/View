@@ -364,19 +364,23 @@ class View implements \ArrayAccess
 	 */
 	public function render()
 	{
+		$steps = [
+
+			[ $this->template, self::TEMPLATE_TYPE_VIEW ],
+			[ $this->layout, self::TEMPLATE_TYPE_LAYOUT ]
+
+		];
+
 		$content = $this->content;
-		$template = $this->template;
 
-		if ($template)
+		foreach ($steps as list($template, $type))
 		{
-			$content = $this->render_with_template($content, $template, self::TEMPLATE_TYPE_VIEW);
-		}
+			if (!$template)
+			{
+				continue;
+			}
 
-		$layout = $this->layout;
-
-		if ($layout)
-		{
-			$content = $this->render_with_template($content, $layout, self::TEMPLATE_TYPE_LAYOUT);
+			$content = $this->render_with_template($content, $template, $type);
 		}
 
 		return $this->decorate($content);
