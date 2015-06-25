@@ -22,14 +22,14 @@ engines.
 ## Getting started
 
 Before you get started you'll need to define some prototype methods to bind some _render_
-components to [View][] instances, a [View][] instances to the [Controller][] instance that use
+components to [View][] instances, and [View][] instances to the [Controller][] instance that use
 them.
 
 If you use the **icanboogie/view** package with [ICanBoogie][] you can simply require the
-[icanboogie/bind-view][] and let it deal with the bindings.
+[icanboogie/bind-view][] and let it deal with bindings.
 
-The following code demonstrates how to bind the `engines` and `template_resolver` properties
-of [View][] instances, as well the `view` property of [Controller][] instances.
+The following code demonstrates how to bind the `engines` and `template_resolver` prototype properties
+of [View][] instances, as well as the `view` prototype property of [Controller][] instances.
 
 ```php
 <?php
@@ -37,11 +37,11 @@ of [View][] instances, as well the `view` property of [Controller][] instances.
 use ICanBoogie\Prototype;
 use ICanBoogie\Render;
 use ICanBoogie\Routing\Controller;
-use ICanBoogie\View;
+use ICanBoogie\View\View;
 
 Prototype::configure([
 
-	'ICanBoogie\Routing\Controller' => [
+	Controller::class => [
 
 		'lazy_get_view' => function(Controller $controller) {
 
@@ -55,7 +55,7 @@ Prototype::configure([
 
 	],
 
-	'ICanBoogie\View\View' => [
+	View::class => [
 
 		'lazy_get_engines' => function(){
 
