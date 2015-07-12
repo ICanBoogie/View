@@ -14,7 +14,12 @@ namespace ICanBoogie\View\ControllerBindingsTest;
 use ICanBoogie\Routing\Controller;
 use ICanBoogie\View\ControllerBindings as ViewBindings;
 
-abstract class BoundController extends Controller
+abstract class BoundControllerWithTemplate extends Controller
 {
 	use ViewBindings;
+
+	protected function get_template()
+	{
+		return 'my-template';
+	}
 }

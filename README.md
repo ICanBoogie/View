@@ -90,8 +90,8 @@ a title is also added to the view variables:
 <?php
 
 use ICanBoogie\Routing\Controller;
-use ICanBoogie\View\ControllerBindings as ViewBindings;
 use ICanBoogie\Module\ControllerBindings as ModuleBindings;
+use ICanBoogie\View\ControllerBindings as ViewBindings;
 
 class ArticlesController extends Controller
 {

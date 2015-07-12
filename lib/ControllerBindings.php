@@ -11,20 +11,16 @@
 
 namespace ICanBoogie\View;
 
-use ICanBoogie\Routing\Controller;
-
 /**
- * Prototype bindings for the {@link Controller} class.
+ * {@link \ICanBoogie\Routing\Controller} prototype bindings.
  *
  * @property View $view
- * @property string $template
- * @property string $layout
+ * @property-read string $template
+ * @property-read string $layout
  */
 trait ControllerBindings
 {
 	/**
-	 * @see $view
-	 *
 	 * @return View
 	 */
 	protected function lazy_get_view()
