@@ -19,8 +19,8 @@
 	},
 	"require": {
 		"php": ">=5.5.0",
-		"icanboogie/routing": "~2.4.0",
-		"icanboogie/render": "~0.4.0",
+		"icanboogie/routing": ">=2.4.0",
+		"icanboogie/render": ">=0.4.0",
 		"icanboogie/event": "~1.3.3"
 	},
 	"suggest": {
