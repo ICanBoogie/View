@@ -1,7 +1,7 @@
 # customization
 
-PACKAGE_NAME = "ICanBoogie/View"
-PACKAGE_VERSION = "v0.3.2"
+PACKAGE_NAME = ICanBoogie/View
+PACKAGE_VERSION = 0.5.0
 
 # do not edit the following lines
 
