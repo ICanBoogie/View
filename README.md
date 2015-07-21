@@ -8,12 +8,9 @@
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/view.svg)](https://packagist.org/packages/icanboogie/view)
 
 The **icanboogie/view** package provides the _view_ part of the model-view-controller (MVC)
-architectural pattern. It extends the features of the Routing package, more precisely its
-controllers, and together with the [icanboogie/render][] package it helps in separating
+architectural pattern. It extends the features of the [icanboogie/routing][] package—more precisely its
+controllers—and together with the [icanboogie/render][] package it helps in separating
 presentation from logic.
-
-The package [icanboogie/render][] is used to locate templates and render them with the appropriate
-engines.
 
 
 
@@ -22,14 +19,14 @@ engines.
 ## Getting started
 
 Before you get started you'll need to define some prototype methods to bind some _render_
-components to [View][] instances, and [View][] instances to the [Controller][] instance that use
+components to [View][] instances, and [View][] instances to the [Controller][] instances that use
 them.
 
-If you use the **icanboogie/view** package with [ICanBoogie][] you can simply require the
-[icanboogie/bind-view][] and let it deal with bindings.
+If you use the **icanboogie/view** package with [ICanBoogie][], you can simply require the
+[icanboogie/bind-view][] package and let it deal with bindings.
 
 The following code demonstrates how to bind the `engines` and `template_resolver` prototype properties
-of [View][] instances, as well as the `view` prototype property of [Controller][] instances.
+of [View][] instances, as well as the `view` prototype property of [Controller][] instances. These bindings are defined by the [ViewBindings][] and [ControllerBindings][] traits.
 
 ```php
 <?php
@@ -155,7 +152,7 @@ $app->events->attach(function(View\AlterEvent $event, View $view) use ($app) {
 Views are rendered using __templates__ and __layouts__. Templates render the content of views,
 while layouts _decorate_ the templates. For instance an "articles/list" template would be used to
 render a collection of articles, while a "page" layout would be used to decorate that rendered
-collection with the layout of the website.
+collection with the layout of a website.
 
 The template used to present the content of the view is resolved as follows:
 
@@ -175,7 +172,7 @@ The layout used to decorate the template is resolved as follows:
 - "default" otherwise.
 
 Because the `template` and `layout` properties are lazily created, you can define them instead of
-letting View find the right template names. The following example demonstrates how to _cancel_ the
+letting [View][] find the right template names. The following example demonstrates how to _cancel_ the
 template and define "admin" as layout:
 
 ```php
@@ -212,8 +209,8 @@ and engine collections.
 
 ### Altering a view before it is rendered
 
-The event `View::render:before` of class [View\BeforeRenderEvent][] is fired before the
-view is rendered. Event hooks may use this event to alter the view and override properties or
+The event `View::render:before` of class [View\BeforeRenderEvent][] is fired before a
+view is rendered. Event hooks may use this event to alter a view and override properties or
 variables set by the controller.
 
 The following example demonstrates how to add variables to a view before it is rendered, and
@@ -344,7 +341,7 @@ the instance is obtained using `ICanBoogie\Render\Hooks::lazy_get_template_resol
 ## Events
 
 - `ICanBoogie\View\View::alter` of class [View\AlterEvent][]: fired when the instance is
-created by the `Controller::view` getter. Event hooks may used this event to alter the view before
+created by the `Controller::view` getter. Event hooks may use this event to alter the view before
 it is returned to the controller.
 
 - `ICanBoogie\View\View::render:before` of class [View\BeforeRenderEvent][]: fired before the
@@ -429,6 +426,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [icanboogie/bind-view]: https://github.com/ICanBoogie/bind-view
 [icanboogie/module]: https://github.com/ICanBoogie/Module
 [icanboogie/render]: https://github.com/ICanBoogie/Render
+[icanboogie/routing]: https://github.com/ICanBoogie/Routing
 [icybee/patron-view-support]: https://github.com/Icybee/PatronViewSupport 
 [ActionController]: http://api.icanboogie.org/routing/class-ICanBoogie.Routing.ActionController.html
 [Controller]: http://api.icanboogie.org/routing/class-ICanBoogie.Routing.Controller.html
