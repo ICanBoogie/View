@@ -18,7 +18,7 @@ use ICanBoogie\Render\TemplateNotFound;
 use ICanBoogie\Render\BasicTemplateResolver;
 use ICanBoogie\Routing\Controller;
 use ICanBoogie\Routing\Route;
-use ICanBoogie\Routing\Routes;
+use ICanBoogie\Routing\RouteCollection;
 
 class ViewTest extends \PHPUnit_Framework_TestCase
 {
@@ -44,7 +44,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			->getMockForAbstractClass();
 
 		$this->routes = $this
-			->getMockBuilder(Routes::class)
+			->getMockBuilder(RouteCollection::class)
 			->disableOriginalConstructor()
 			->getMock();
 	}
@@ -89,11 +89,11 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	public function provide_test_get_template()
 	{
 		$routes = $this
-			->getMockBuilder(Routes::class)
+			->getMockBuilder(RouteCollection::class)
 			->disableOriginalConstructor()
 			->getMock();
 
-		/* @var $routes Routes */
+		/* @var $routes RouteCollection */
 
 		$t1 = 'template' . uniqid();
 
@@ -192,11 +192,11 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	public function provide_test_get_layout()
 	{
 		$routes = $this
-			->getMockBuilder(Routes::class)
+			->getMockBuilder(RouteCollection::class)
 			->disableOriginalConstructor()
 			->getMock();
 
-		/* @var $routes Routes */
+		/* @var $routes RouteCollection */
 
 		#
 		# $controller->route->layout
@@ -465,17 +465,6 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	{
 		$view = new View($this->controller);
 		$view[uniqid()];
-	}
-
-	public function test_add_path()
-	{
-		$path = __DIR__;
-		$template_resolver = new BasicTemplateResolver;
-		$view = new View($this->controller);
-		$view->template_resolver = $template_resolver;
-		$view->add_path($path);
-
-		$this->assertEquals([ __DIR__ . DIRECTORY_SEPARATOR ], $template_resolver->get_paths());
 	}
 
 	public function test_view_getter()

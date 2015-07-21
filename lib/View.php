@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\View;
 
-use ICanBoogie\Events;
+use ICanBoogie\EventCollection;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\PrototypeTrait;
@@ -32,6 +32,9 @@ use ICanBoogie\Routing\Controller;
  */
 class View implements \ArrayAccess
 {
+	use PrototypeTrait;
+	use ViewBindings;
+
 	const TEMPLATE_TYPE_VIEW = 1;
 	const TEMPLATE_TYPE_LAYOUT = 2;
 	const TEMPLATE_TYPE_PARTIAL = 3;
@@ -55,9 +58,6 @@ class View implements \ArrayAccess
 		self::TEMPLATE_TYPE_PARTIAL=> self::TEMPLATE_PREFIX_PARTIAL
 
 	];
-
-	use PrototypeTrait;
-	use ViewBindings;
 
 	/**
 	 * @var Controller
@@ -266,7 +266,7 @@ class View implements \ArrayAccess
 	{
 		$this->controller = $controller;
 
-		Events::get()->attach_to($controller, function (Controller\ActionEvent $event, Controller $target) {
+		EventCollection::get()->attach_to($controller, function (Controller\ActionEvent $event, Controller $target) {
 
 			$this->on_action($event);
 
@@ -310,17 +310,6 @@ class View implements \ArrayAccess
 	public function offsetUnset($offset)
 	{
 		unset($this->variables[$offset]);
-	}
-
-	/**
-	 * Add a path to search for templates.
-	 *
-	 * @param string $path
-	 * @param int $weight
-	 */
-	public function add_path($path, $weight=0)
-	{
-		$this->template_resolver->add_path($path, $weight);
 	}
 
 	/**

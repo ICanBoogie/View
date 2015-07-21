@@ -15,8 +15,8 @@ namespace ICanBoogie\View;
  * {@link \ICanBoogie\Routing\Controller} prototype bindings.
  *
  * @property View $view
- * @property-read string $template
- * @property-read string $layout
+ * @property string $template
+ * @property string $layout
  */
 trait ControllerBindings
 {
