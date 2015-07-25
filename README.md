@@ -396,7 +396,10 @@ cloned with the following command line:
 ## Documentation
 
 The package is documented as part of the [ICanBoogie][] framework
-[documentation](http://api.icanboogie.org/view/). You can generate the documentation for the package and its dependencies with the `make doc` command. The documentation is generated in the `build/docs` directory. [ApiGen](http://apigen.org/) is required. The directory can later be cleaned with the `make clean` command.
+[documentation][]. You can generate the documentation for the package and its dependencies with
+the `make doc` command. The documentation is generated in the `build/docs` directory.
+[ApiGen](http://apigen.org/) is required. The directory can later be cleaned with the
+`make clean` command.
 
 
 
@@ -404,7 +407,11 @@ The package is documented as part of the [ICanBoogie][] framework
 
 ## Testing
 
-The test suite is ran with the `make test` command. [PHPUnit](https://phpunit.de/) and [Composer](http://getcomposer.org/) need to be globally available to run the suite. The command installs dependencies as required. The `make test-coverage` command runs test suite and also creates an HTML coverage report in `build/coverage`. The directory can later be cleaned with the `make clean` command.
+The test suite is ran with the `make test` command. [PHPUnit](https://phpunit.de/) and
+[Composer](http://getcomposer.org/) need to be globally available to run the suite. The command
+installs dependencies as required. The `make test-coverage` command runs test suite and also
+creates an HTML coverage report in `build/coverage`. The directory can later be cleaned with
+the `make clean` command.
 
 The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
@@ -423,17 +430,18 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 
 
-[icanboogie/bind-view]: https://github.com/ICanBoogie/bind-view
-[icanboogie/module]: https://github.com/ICanBoogie/Module
-[icanboogie/render]: https://github.com/ICanBoogie/Render
-[icanboogie/routing]: https://github.com/ICanBoogie/Routing
+[Response]:               http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Response.html
+[ActionController]:       http://api.icanboogie.org/routing/2.5/class-ICanBoogie.Routing.ActionController.html
+[Controller]:             http://api.icanboogie.org/routing/2.5/class-ICanBoogie.Routing.Controller.html
+[documentation]:          http://api.icanboogie.org/view/0.6/
+[ControllerBindings]:     http://api.icanboogie.org/view/0.6/class-ICanBoogie.View.ControllerBindings.html
+[View]:                   http://api.icanboogie.org/view/0.6/class-ICanBoogie.View.View.html
+[ViewBindings]:           http://api.icanboogie.org/view/0.6/class-ICanBoogie.View.ViewBindings.html
+[View\BeforeRenderEvent]: http://api.icanboogie.org/view/0.6/class-ICanBoogie.View.View.BeforeRenderEvent.html
+[View\AlterEvent]:        http://api.icanboogie.org/view/0.6/class-ICanBoogie.View.View.AlterEvent.html
+[icanboogie/bind-view]:   https://github.com/ICanBoogie/bind-view
+[icanboogie/module]:      https://github.com/ICanBoogie/Module
+[icanboogie/render]:      https://github.com/ICanBoogie/Render
+[icanboogie/routing]:     https://github.com/ICanBoogie/Routing
+[ICanBoogie]:             https://github.com/ICanBoogie/ICanBoogie
 [icybee/patron-view-support]: https://github.com/Icybee/PatronViewSupport 
-[ActionController]: http://api.icanboogie.org/routing/class-ICanBoogie.Routing.ActionController.html
-[Controller]: http://api.icanboogie.org/routing/class-ICanBoogie.Routing.Controller.html
-[ControllerBindings]: http://api.icanboogie.org/view/class-ICanBoogie.View.ControllerBindings.html
-[ICanBoogie]: https://github.com/ICanBoogie/ICanBoogie
-[Response]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Response.html
-[View]: http://api.icanboogie.org/view/class-ICanBoogie.View.View.html
-[ViewBindings]: http://api.icanboogie.org/view/class-ICanBoogie.View.ViewBindings.html
-[View\BeforeRenderEvent]: http://api.icanboogie.org/view/class-ICanBoogie.View.View.BeforeRenderEvent.html
-[View\AlterEvent]: http://api.icanboogie.org/view/class-ICanBoogie.View.View.AlterEvent.html
