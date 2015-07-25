@@ -458,7 +458,7 @@ class View implements \ArrayAccess
 			return;
 		}
 
-		new View\BeforeRender($this);
+		new View\BeforeRenderEvent($this);
 
 		$event->result = $this->render();
 	}

@@ -12,7 +12,7 @@ use ICanBoogie\View\View;
  *
  * @package ICanBoogie\View\View
  */
-class BeforeRender extends Event
+class BeforeRenderEvent extends Event
 {
 	public function __construct(View $target)
 	{
