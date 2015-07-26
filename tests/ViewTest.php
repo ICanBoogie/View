@@ -70,7 +70,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertSame($content, $view->content);
 		$this->assertSame($content, $view['content']);
-		$this->assertEquals([ 'content' => $content, 'v1' => $v1, 'v2' => $v2 ], $view->variables);
+		$this->assertEquals([ 'content' => $content, 'v1' => $v1, 'v2' => $v2, 'view' => $view ], $view->variables);
 	}
 
 	/**
@@ -550,12 +550,14 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$view['v1'] = $v1;
 		$view['v2'] = $v2;
 		$view->decorate_with('decorator');
+		$view_class = get_class($view);
 
 		$expected = <<<EOT
 <DECORATED>---
 CONTENT: $content|
 V1: $v1|
 V2: $v2|
+VIEW: $view_class|
 ===
 </DECORATED>
 

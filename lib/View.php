@@ -265,6 +265,7 @@ class View implements \ArrayAccess
 	public function __construct(Controller $controller)
 	{
 		$this->controller = $controller;
+		$this['view'] = $this;
 
 		EventCollection::get()->attach_to($controller, function (Controller\ActionEvent $event, Controller $target) {
 
