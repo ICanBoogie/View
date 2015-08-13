@@ -20,11 +20,5 @@ namespace ICanBoogie\View;
  */
 trait ControllerBindings
 {
-	/**
-	 * @return View
-	 */
-	protected function lazy_get_view()
-	{
-		return parent::lazy_get_view();
-	}
+
 }

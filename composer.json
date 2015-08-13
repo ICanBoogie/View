@@ -20,9 +20,9 @@
 	"minimum-stability": "dev",
 	"require": {
 		"php": ">=5.5.0",
-		"icanboogie/routing": "2.5.x-dev",
-		"icanboogie/render": "0.5.x-dev",
-		"icanboogie/event": "1.4.x-dev"
+		"icanboogie/routing": "^2.5.0",
+		"icanboogie/render": "^0.5.0",
+		"icanboogie/event": "^1.4.0"
 	},
 	"suggest": {
 		"icanboogie/bind-view": "Binds the View to ICanBoogie"
