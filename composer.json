@@ -25,7 +25,7 @@
 		"icanboogie/event": "^1.4.0"
 	},
 	"suggest": {
-		"icanboogie/bind-view": "Binds the View to ICanBoogie"
+		"icanboogie/bind-view": "Binds the package to ICanBoogie"
 	},
 	"autoload": {
 		"psr-4": {
