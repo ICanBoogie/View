@@ -12,7 +12,7 @@
 namespace ICanBoogie\View;
 
 use ICanBoogie\EventCollection;
-use ICanBoogie\Object;
+use ICanBoogie\Prototyped;
 use ICanBoogie\Prototype;
 use ICanBoogie\Render;
 use ICanBoogie\Render\TemplateResolver;
@@ -26,7 +26,7 @@ $autoload->addPsr4('ICanBoogie\\View\\ControllerBindingsTest\\', __DIR__ . '/Con
 # Building the tiniest fake app for Controller
 #
 
-$app = new Object;
+$app = new Prototyped;
 
 EventCollection::get()->attach(function(TemplateResolver\AlterEvent $event, BasicTemplateResolver $target) {
 
