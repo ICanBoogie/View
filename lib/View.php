@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\View;
 
-use ICanBoogie\EventCollection;
+use ICanBoogie\EventCollectionProvider;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\PrototypeTrait;
@@ -267,7 +267,7 @@ class View implements \ArrayAccess
 		$this->controller = $controller;
 		$this['view'] = $this;
 
-		EventCollection::get()->attach_to($controller, function (Controller\ActionEvent $event, Controller $target) {
+		EventCollectionProvider::provide()->attach_to($controller, function (Controller\ActionEvent $event, Controller $target) {
 
 			$this->on_action($event);
 

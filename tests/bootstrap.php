@@ -12,6 +12,7 @@
 namespace ICanBoogie\View;
 
 use ICanBoogie\EventCollection;
+use ICanBoogie\EventCollectionProvider;
 use ICanBoogie\Prototyped;
 use ICanBoogie\Prototype;
 use ICanBoogie\Render;
@@ -28,7 +29,15 @@ $autoload->addPsr4('ICanBoogie\\View\\ControllerBindingsTest\\', __DIR__ . '/Con
 
 $app = new Prototyped;
 
-EventCollection::get()->attach(function(TemplateResolver\AlterEvent $event, BasicTemplateResolver $target) {
+EventCollectionProvider::using(function() {
+
+	static $collection;
+
+	return $collection ?: $collection = new EventCollection;
+
+});
+
+EventCollectionProvider::provide()->attach(function(TemplateResolver\AlterEvent $event, BasicTemplateResolver $target) {
 
 	$target->add_path(__DIR__ . '/templates');
 
