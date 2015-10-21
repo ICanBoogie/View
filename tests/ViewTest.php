@@ -34,19 +34,12 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	 */
 	private $controller;
 
-	private $routes;
-
 	public function setUp()
 	{
 		$this->controller = $this
 			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
 			->getMockForAbstractClass();
-
-		$this->routes = $this
-			->getMockBuilder(RouteCollection::class)
-			->disableOriginalConstructor()
-			->getMock();
 	}
 
 	public function test_get_controller()
@@ -88,16 +81,9 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_get_template()
 	{
-		$routes = $this
-			->getMockBuilder(RouteCollection::class)
-			->disableOriginalConstructor()
-			->getMock();
-
-		/* @var $routes RouteCollection */
-
 		$t1 = 'template' . uniqid();
 
-		$r1 = new Route($routes, '/', [ 'template' => $t1 ]);
+		$r1 = new Route('/', [ 'template' => $t1 ]);
 
 		$c1 = $this
 			->getMockBuilder(Controller::class)
@@ -191,20 +177,13 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_get_layout()
 	{
-		$routes = $this
-			->getMockBuilder(RouteCollection::class)
-			->disableOriginalConstructor()
-			->getMock();
-
-		/* @var $routes RouteCollection */
-
 		#
 		# $controller->route->layout
 		#
 
 		$t1 = 'layout' . uniqid();
 
-		$r1 = new Route($routes, '/', [ 'layout' => $t1 ]);
+		$r1 = new Route('/', [ 'layout' => $t1 ]);
 
 		$c1 = $this
 			->getMockBuilder(Controller::class)
@@ -569,7 +548,7 @@ EOT;
 	public function test_view_render()
 	{
 		$request = Request::from("/");
-		$request->context->route = new Route($this->routes, '/', [ 'layout' => null ]);
+		$request->context->route = new Route('/', [ 'layout' => null ]);
 
 		$controller = $this
 			->getMockBuilder(Controller::class)
@@ -606,7 +585,7 @@ EOT;
 
 		/* @var $controller Controller */
 
-		$request->context->route = new Route($this->routes, '/', []);
+		$request->context->route = new Route('/', []);
 
 		$response = $controller($request);
 		$this->assertEquals(<<<EOT
@@ -619,7 +598,7 @@ EOT
 	public function test_view_render_with_custom_layout()
 	{
 		$request = Request::from("/");
-		$request->context->route = new Route($this->routes, '/', [ 'layout' => 'custom' ]);
+		$request->context->route = new Route('/', [ 'layout' => 'custom' ]);
 
 		$controller = $this
 			->getMockBuilder(Controller::class)
@@ -647,7 +626,7 @@ EOT
 	public function test_controller_with_json_response()
 	{
 		$request = Request::from("/");
-		$request->context->route = new Route($this->routes, '/', [ ]);
+		$request->context->route = new Route('/', [ ]);
 
 		$controller = $this
 			->getMockBuilder(Controller::class)

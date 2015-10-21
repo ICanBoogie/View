@@ -26,7 +26,8 @@ If you use the **icanboogie/view** package with [ICanBoogie][], you can simply r
 [icanboogie/bind-view][] package and let it deal with bindings.
 
 The following code demonstrates how to bind the `engines` and `template_resolver` prototype properties
-of [View][] instances, as well as the `view` prototype property of [Controller][] instances. These bindings are defined by the [ViewBindings][] and [ControllerBindings][] traits.
+of [View][] instances, as well as the `view` prototype property of [Controller][] instances. These
+bindings are defined by the [ViewBindings][] and [ControllerBindings][] traits.
 
 ```php
 <?php
@@ -102,7 +103,7 @@ class ArticlesController extends Controller
 }
 ```
 
-**Note:** The `model` getter is provided by the [icanboogie/module][] package, and is only
+> **Note:** The `model` getter is provided by the [icanboogie/module][] package, and is only
 available if the route has a `module` property, which is automatic for routes defined by modules.
 
 
@@ -138,7 +139,17 @@ $app->events->attach(function(View\AlterEvent $event, View $view) use ($app) {
 		return;
 	}
 
+	// adding a template path
 	$view->template_resolver->add_path($app->modules[$module_id]->path . 'templates');
+	
+	// adding a variable
+	$view['log'] = $app->log->messages;
+
+	// altering the layout
+	if ($app->is_mobile)
+	{
+		$view->layout .= '.mobile';
+	}
 
 });
 ```
@@ -207,29 +218,34 @@ and engine collections.
 
 
 
-### Altering a view before it is rendered
+### Providing a cached result
 
 The event `View::render:before` of class [View\BeforeRenderEvent][] is fired before a
-view is rendered. Event hooks may use this event to alter a view and override properties or
-variables set by the controller.
+view is rendered. Event hooks may use this event to provide a cached result and save the cost of rendering.
 
-The following example demonstrates how to add variables to a view before it is rendered, and
-also change its layout to match the context of the application:
+The following example demonstrates how an event hook may provide a cached result of a previously
+rendered view. Because the JSON of a view instance includes its template, layout, and variables,
+its hash is perfect as cache key:
 
 ```php
 <?php
 
 use ICanBoogie\View\View;
 
-$app->events->attach(function(View\BeforeRenderEvent $event, View $view) use ($app) {
+$app->events->attach(function(View\BeforeRenderEvent $event, View $view) use ($storage) {
 
-	$view['alerts'] = $app->alerts;
-	$view['user'] = $app->user;
-
-	if ($app->is_mobile)
+	$hash = hash('sha256', json_encode($view));
+	$result = $storage->retrieve($hash);
+	
+	if ($result !== null)
 	{
-		$view->layout .= '.mobile';
+		$event->result = $result;
+		
+		return;
 	}
+	
+	$event->result = $result = $target->render();	$storage->store($key, $result);
+	$event->stop();	
 
 });
 ```
@@ -323,7 +339,8 @@ class ArticlesController extends Controller
 
 ## Prototype methods
 
-The following prototypes method are used. The [ControllerBindings][] and [ViewBindings][] may be used to help hinting code.
+The following prototypes method are used. The [ControllerBindings][] and [ViewBindings][] may be
+used to help hinting code.
 
 - `ICanBoogie\Routing\Controller::lazy_get_view`: Returns the [View][] instance associated with
 the controller and also starts the view _magic_.
@@ -345,7 +362,7 @@ created by the `Controller::view` getter. Event hooks may use this event to alte
 it is returned to the controller.
 
 - `ICanBoogie\View\View::render:before` of class [View\BeforeRenderEvent][]: fired before the
-view is rendered. Event hooks may use this event to alter the view before it is rendered.
+view is rendered. Event hooks may use this event to provide a cached result.
 
 
 
@@ -433,12 +450,12 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [Response]:               http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Response.html
 [ActionController]:       http://api.icanboogie.org/routing/2.5/class-ICanBoogie.Routing.ActionController.html
 [Controller]:             http://api.icanboogie.org/routing/2.5/class-ICanBoogie.Routing.Controller.html
-[documentation]:          http://api.icanboogie.org/view/0.6/
-[ControllerBindings]:     http://api.icanboogie.org/view/0.6/class-ICanBoogie.View.ControllerBindings.html
-[View]:                   http://api.icanboogie.org/view/0.6/class-ICanBoogie.View.View.html
-[ViewBindings]:           http://api.icanboogie.org/view/0.6/class-ICanBoogie.View.ViewBindings.html
-[View\BeforeRenderEvent]: http://api.icanboogie.org/view/0.6/class-ICanBoogie.View.View.BeforeRenderEvent.html
-[View\AlterEvent]:        http://api.icanboogie.org/view/0.6/class-ICanBoogie.View.View.AlterEvent.html
+[documentation]:          http://api.icanboogie.org/view/1.0/
+[ControllerBindings]:     http://api.icanboogie.org/view/1.0/class-ICanBoogie.View.ControllerBindings.html
+[View]:                   http://api.icanboogie.org/view/1.0/class-ICanBoogie.View.View.html
+[ViewBindings]:           http://api.icanboogie.org/view/1.0/class-ICanBoogie.View.ViewBindings.html
+[View\BeforeRenderEvent]: http://api.icanboogie.org/view/1.0/class-ICanBoogie.View.View.BeforeRenderEvent.html
+[View\AlterEvent]:        http://api.icanboogie.org/view/1.0/class-ICanBoogie.View.View.AlterEvent.html
 [icanboogie/bind-view]:   https://github.com/ICanBoogie/bind-view
 [icanboogie/module]:      https://github.com/ICanBoogie/Module
 [icanboogie/render]:      https://github.com/ICanBoogie/Render

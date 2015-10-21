@@ -8,14 +8,17 @@ use ICanBoogie\View\View;
 /**
  * Event class for the `ICanBoogie\View\View::render:before` event.
  *
- * Event hooks may use this event to alter the view before it is rendered.
- *
- * @package ICanBoogie\View\View
+ * Event hooks may use this event to alter the view before it is rendered, or provide a cached
+ * result.
  */
 class BeforeRenderEvent extends Event
 {
-	public function __construct(View $target)
+	public $result;
+
+	public function __construct(View $target, &$result)
 	{
+		$this->result = &$result;
+
 		parent::__construct($target, 'render:before');
 	}
 }

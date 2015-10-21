@@ -475,7 +475,7 @@ class View implements \ArrayAccess, \JsonSerializable
 			return;
 		}
 
-		new View\BeforeRenderEvent($this);
+		new View\BeforeRenderEvent($this, $event->result);
 
 		if ($event->result !== null)
 		{
