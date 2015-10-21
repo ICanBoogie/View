@@ -30,7 +30,7 @@ use ICanBoogie\Routing\Controller;
  * @property-read callable[] $layout_resolvers @internal
  * @property-read callable[] $template_resolvers @internal
  */
-class View implements \ArrayAccess
+class View implements \ArrayAccess, \JsonSerializable
 {
 	use PrototypeTrait;
 	use ViewBindings;
@@ -276,6 +276,22 @@ class View implements \ArrayAccess
 
 	/**
 	 * @inheritdoc
+	 *
+	 * Returns an array with the following keys: `template`, `layout`, and `variables`.
+	 */
+	public function jsonSerialize()
+	{
+		return [
+
+			'template' => $this->template,
+			'layout' => $this->layout,
+			'variables' => $this->ensure_without_this($this->variables)
+
+		];
+	}
+
+	/**
+	 * @inheritdoc
 	 */
 	public function offsetExists($offset)
 	{
@@ -461,6 +477,31 @@ class View implements \ArrayAccess
 
 		new View\BeforeRenderEvent($this);
 
+		if ($event->result !== null)
+		{
+			return;
+		}
+
 		$event->result = $this->render();
+	}
+
+	/**
+	 * Ensures the array does not include our instance.
+	 *
+	 * @param array $array
+	 *
+	 * @return array
+	 */
+	private function ensure_without_this(array $array)
+	{
+		foreach ($array as $key => $value)
+		{
+			if ($value === $this)
+			{
+				unset($array[$key]);
+			}
+		}
+
+		return $array;
 	}
 }
