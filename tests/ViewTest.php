@@ -11,14 +11,14 @@
 
 namespace ICanBoogie\View;
 
+use ICanBoogie\EventCollection;
+use ICanBoogie\EventCollectionProvider;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\Render\TemplateNotFound;
-use ICanBoogie\Render\BasicTemplateResolver;
 use ICanBoogie\Routing\Controller;
 use ICanBoogie\Routing\Route;
-use ICanBoogie\Routing\RouteCollection;
 
 class ViewTest extends \PHPUnit_Framework_TestCase
 {
@@ -34,12 +34,19 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	 */
 	private $controller;
 
+	/**
+	 * @var EventCollection
+	 */
+	private $events;
+
 	public function setUp()
 	{
 		$this->controller = $this
 			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
 			->getMockForAbstractClass();
+
+		$this->events = EventCollectionProvider::provide();
 	}
 
 	public function test_get_controller()
@@ -681,5 +688,55 @@ EOT
 		$on_action->invoke($view, $event);
 
 		$this->assertSame($result, $event->result);
+	}
+
+	public function test_on_action_should_preserve_before_render_event_result()
+	{
+		$expected_result = uniqid();
+		$controller = $this->controller;
+		$view = new View($controller);
+
+		$this->events->attach_to($view, function(View\BeforeRenderEvent $event, View $target) use ($expected_result) {
+
+			$event->result = $expected_result;
+
+		});
+
+		$result = null;
+
+		new Controller\ActionEvent($controller, $result);
+
+		$this->assertEquals($expected_result, $result);
+	}
+
+	public function test_should_remove_this_during_json_serializ_if_view()
+	{
+		$view = new View($this->controller);
+		$view->template = $template = uniqid();
+		$view->layout = $layout = uniqid();
+		$view['this'] = $view;
+		$view['var'] = $var = uniqid();
+
+		$array = $view->jsonSerialize();
+		$this->assertEquals($template, $array['template']);
+		$this->assertEquals($layout, $array['layout']);
+		$this->assertEquals($var, $array['variables']['var']);
+		$this->assertArrayNotHasKey('this', $array['variables']);
+	}
+
+	public function test_should_remove_preserve_this_during_json_serializ_if_not_view()
+	{
+		$view = new View($this->controller);
+		$view->template = $template = uniqid();
+		$view->layout = $layout = uniqid();
+		$view['this'] = $that = (object) [ 'property' => uniqid() ];
+		$view['var'] = $var = uniqid();
+
+		$array = $view->jsonSerialize();
+		$this->assertEquals($template, $array['template']);
+		$this->assertEquals($layout, $array['layout']);
+		$this->assertEquals($var, $array['variables']['var']);
+		$this->assertArrayHasKey('this', $array['variables']);
+		$this->assertEquals($that, $array['variables']['this']);
 	}
 }
