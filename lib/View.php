@@ -45,9 +45,9 @@ class View implements \ArrayAccess, \JsonSerializable
 
 	static private $template_type_name = [
 
-		self::TEMPLATE_TYPE_VIEW => "template",
-		self::TEMPLATE_TYPE_LAYOUT => "layout",
-		self::TEMPLATE_TYPE_PARTIAL=> "partial"
+		self::TEMPLATE_TYPE_VIEW => 'template',
+		self::TEMPLATE_TYPE_LAYOUT => 'layout',
+		self::TEMPLATE_TYPE_PARTIAL=> 'partial'
 
 	];
 
@@ -334,13 +334,13 @@ class View implements \ArrayAccess, \JsonSerializable
 	 *
 	 * @param string $name Name of the template.
 	 * @param string $prefix Template prefix.
-	 * @param array $tries Reference to an array where tried path are collected.
+	 * @param array $tried Reference to an array where tried paths are collected.
 	 *
 	 * @return string|false
 	 */
-	protected function resolve_template($name, $prefix, &$tries = [])
+	protected function resolve_template($name, $prefix, &$tried = [])
 	{
-		$tries = $tries ?: [];
+		$tried = $tried ?: [];
 
 		if ($prefix)
 		{
@@ -350,7 +350,7 @@ class View implements \ArrayAccess, \JsonSerializable
 
 		$resolver = $this->template_resolver;
 
-		return $resolver->resolve($name, $this->engines->extensions, $tries);
+		return $resolver->resolve($name, $this->engines->extensions, $tried);
 	}
 
 	/**
@@ -428,7 +428,7 @@ class View implements \ArrayAccess, \JsonSerializable
 		{
 			$type_name = self::$template_type_name[$type];
 
-			throw new TemplateNotFound("There is no $type_name matching <q>$template</q>.", $tries);
+			throw new TemplateNotFound("There is no $type_name matching `$template`.", $tries);
 		}
 
 		list($thisArg, $variables) = $this->prepare_engine_args($content, $type);

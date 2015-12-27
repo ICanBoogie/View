@@ -77,8 +77,8 @@ Prototype::configure([
 
 ## Views and controllers
 
-Views are associated with controllers through the lazy getter `view`, thus a simple `$this->view`
-is all that is required to enable view features inside a controller. The view then waits for
+Views are associated with controllers through the lazy getter `view`, thus `$this->view`
+is all is take to start a view inside a controller. The view then waits for
 the `Controller::action` event, to perform its rendering.
 
 The following example demonstrates how a query of some articles is set as the view content,
@@ -93,9 +93,9 @@ use ICanBoogie\View\ControllerBindings as ViewBindings;
 
 class ArticlesController extends Controller
 {
-	use Controller\ResourceTrait, ViewBindings, ModuleBindings;
+	use Controller\ActionTrait, ViewBindings, ModuleBindings;
 
-	protected function index()
+	protected function action_index()
 	{
 		$this->view->content = $this->model->visible->ordered->limit(10);
 		$this->view['title'] = "Last ten articles";
@@ -191,7 +191,7 @@ template and define "admin" as layout:
 
 	// …
 
-	protected function index()
+	protected function action_index()
 	{
 		$this->view->content = $this->model->visible->ordered->limit(10);
 		$this->view->template = null;
@@ -202,7 +202,7 @@ template and define "admin" as layout:
 ```
 
 The templates and layouts are usually specified as _names_ e.g. "page" or "articles/show", and not
-by path e.g. "/path/to/my/template.php". A template resolver and an engine collection are used
+by path e.g. "/path/to/my/template.phtml". A template resolver and an engine collection are used
 to resolve these names into pathname, and the engine collection is used to render the templates
 with the appropriate engines. The reason for this is that templates are usually defined as a
 hierarchy in your application, and using this hierarchy they can be replaced to better suit
@@ -448,8 +448,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 
 [Response]:               http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Response.html
-[ActionController]:       http://api.icanboogie.org/routing/2.5/class-ICanBoogie.Routing.ActionController.html
-[Controller]:             http://api.icanboogie.org/routing/2.5/class-ICanBoogie.Routing.Controller.html
+[Controller]:             http://api.icanboogie.org/routing/3.0/class-ICanBoogie.Routing.Controller.html
 [documentation]:          http://api.icanboogie.org/view/1.0/
 [ControllerBindings]:     http://api.icanboogie.org/view/1.0/class-ICanBoogie.View.ControllerBindings.html
 [View]:                   http://api.icanboogie.org/view/1.0/class-ICanBoogie.View.View.html

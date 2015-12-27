@@ -13,12 +13,21 @@ use ICanBoogie\View\View;
  */
 class BeforeRenderEvent extends Event
 {
+	const TYPE = 'render:before';
+
+	/**
+	 * @var string
+	 */
 	public $result;
 
+	/**
+	 * @param View $target
+	 * @param string $result
+	 */
 	public function __construct(View $target, &$result)
 	{
 		$this->result = &$result;
 
-		parent::__construct($target, 'render:before');
+		parent::__construct($target, self::TYPE);
 	}
 }
