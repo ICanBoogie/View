@@ -59,7 +59,7 @@ Prototype::configure([
 
 		'lazy_get_view' => function(Controller $controller) {
 
-			$view = new View($controller);
+			$view = new View($controller, Render\get_renderer());
 
 			new View\AlterEvent($view);
 
@@ -67,21 +67,6 @@ Prototype::configure([
 
 		}
 
-	],
-
-	View::class => [
-
-		'lazy_get_engines' => function(){
-
-			return Render\get_engines();
-
-		},
-
-		'lazy_get_template_resolver' => function() {
-
-			return clone Render\get_template_resolver();
-
-		}
 	]
 
 ]);

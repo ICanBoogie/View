@@ -16,6 +16,7 @@ use ICanBoogie\EventCollectionProvider;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\PropertyNotDefined;
+use ICanBoogie\Render\Renderer;
 use ICanBoogie\Render\TemplateNotFound;
 use ICanBoogie\Routing\Controller;
 use ICanBoogie\Routing\Route;
@@ -35,6 +36,11 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	private $controller;
 
 	/**
+	 * @var Renderer
+	 */
+	private $renderer;
+
+	/**
 	 * @var EventCollection
 	 */
 	private $events;
@@ -46,24 +52,32 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			->disableOriginalConstructor()
 			->getMockForAbstractClass();
 
+		$this->renderer = \ICanBoogie\Render\get_renderer();
+
 		$this->events = EventCollectionProvider::provide();
 	}
 
 	public function test_get_controller()
 	{
 		$controller = $this->controller;
-		$view = new View($controller);
+		$view = new View($controller, $this->renderer);
 		$this->assertSame($controller, $view->controller);
+	}
+
+	public function test_get_renderer()
+	{
+		$renderer = $this->renderer;
+		$view = new View($this->controller, $this->renderer);
+		$this->assertSame($renderer, $view->renderer);
 	}
 
 	public function test_get_variables()
 	{
-		$controller = $this->controller;
 		$content = self::generate_bytes();
 		$v1 = self::generate_bytes();
 		$v2 = self::generate_bytes();
 
-		$view = new View($controller);
+		$view = new View($this->controller, $this->renderer);
 		$view->content = $content;
 		$view['v1'] = $v1;
 		$view['v2'] = $v2;
@@ -75,12 +89,11 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 	public function test_assign()
 	{
-		$controller = $this->controller;
 		$content = self::generate_bytes();
 		$v1 = self::generate_bytes();
 		$v2 = self::generate_bytes();
 
-		$view = new View($controller);
+		$view = new View($this->controller, $this->renderer);
 		$view->assign(compact('content', 'v1', 'v2'));
 
 		$this->assertSame($content, $view->content);
@@ -96,7 +109,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_get_template($controller, $expected)
 	{
-		$view = new View($controller);
+		$view = new View($controller, $this->renderer);
 
 		$this->assertSame($expected, $view->template);
 	}
@@ -199,6 +212,11 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_get_layout()
 	{
+		$renderer = $this
+			->getMockBuilder(Renderer::class)
+			->disableOriginalConstructor()
+			->getMock();
+
 		#
 		# $controller->route->layout
 		#
@@ -219,7 +237,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 		/* @var $c1 Controller */
 
-		$v1 = new View($c1);
+		$v1 = new View($c1, $renderer);
 
 		#
 		# $controller->layout
@@ -241,7 +259,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 		$c2->layout = $t2;
 
-		$v2 = new View($c2);
+		$v2 = new View($c2, $renderer);
 
 		#
 		# $controller->route->id
@@ -275,7 +293,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 		/* @var $c3 Controller */
 
-		$v3 = new View($c3);
+		$v3 = new View($c3, $renderer);
 
 		#
 		# 'page'
@@ -330,8 +348,13 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			->method('get_route')
 			->willReturn($route);
 
+		$renderer = $this
+			->getMockBuilder(Renderer::class)
+			->disableOriginalConstructor()
+			->getMock();
+
 		$view = $this->getMockBuilder(View::class)
-			->setConstructorArgs([ $controller ])
+			->setConstructorArgs([ $controller, $renderer ])
 			->setMethods([ 'resolve_template' ])
 			->getMock();
 
@@ -380,8 +403,13 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			->method('get_route')
 			->willReturn($route);
 
+		$renderer = $this
+			->getMockBuilder(Renderer::class)
+			->disableOriginalConstructor()
+			->getMock();
+
 		$view = $this->getMockBuilder(View::class)
-			->setConstructorArgs([ $controller ])
+			->setConstructorArgs([ $controller, $renderer ])
 			->setMethods([ 'resolve_template' ])
 			->getMock();
 
@@ -449,7 +477,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 	public function test_array_interface()
 	{
-		$view = new View($this->controller);
+		$view = new View($this->controller, $this->renderer);
 		$this->assertFalse(isset($view['content']));
 		$expected = $this->generate_bytes();
 		$view['content'] = $expected;
@@ -464,7 +492,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_should_throw_exception_on_undefined_offset()
 	{
-		$view = new View($this->controller);
+		$view = new View($this->controller, $this->renderer);
 		$view[uniqid()];
 	}
 
@@ -480,7 +508,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 		$view = $this
 			->getMockBuilder(View::class)
-			->setConstructorArgs([ $this->controller ])
+			->setConstructorArgs([ $this->controller, $this->renderer ])
 			->setMethods([ 'get_template', 'get_layout' ])
 			->getMock();
 		$view
@@ -508,7 +536,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
 		$view = $this
 			->getMockBuilder(View::class)
-			->setConstructorArgs([ $this->controller ])
+			->setConstructorArgs([ $this->controller, $this->renderer ])
 			->setMethods([ 'get_template', 'get_layout' ])
 			->getMock();
 		$view
@@ -525,7 +553,6 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		}
 		catch (TemplateNotFound $e)
 		{
-			$this->assertContains("no layout matching", $e->getMessage());
 			$this->assertContains($template, $e->getMessage());
 		}
 	}
@@ -534,7 +561,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 	{
 		$view = $this
 			->getMockBuilder(View::class)
-			->setConstructorArgs([ $this->controller ])
+			->setConstructorArgs([ $this->controller, $this->renderer ])
 			->setMethods([ 'get_template', 'get_layout' ])
 			->getMock();
 		$view
@@ -709,7 +736,7 @@ EOT
 	{
 		$expected_result = uniqid();
 		$controller = $this->controller;
-		$view = new View($controller);
+		$view = new View($controller, $this->renderer);
 
 		$this->events->attach_to($view, function(View\BeforeRenderEvent $event, View $target) use ($expected_result) {
 
@@ -726,7 +753,7 @@ EOT
 
 	public function test_should_remove_this_during_json_serializ_if_view()
 	{
-		$view = new View($this->controller);
+		$view = new View($this->controller, $this->renderer);
 		$view->template = $template = uniqid();
 		$view->layout = $layout = uniqid();
 		$view['this'] = $view;
@@ -741,7 +768,7 @@ EOT
 
 	public function test_should_remove_preserve_this_during_json_serializ_if_not_view()
 	{
-		$view = new View($this->controller);
+		$view = new View($this->controller, $this->renderer);
 		$view->template = $template = uniqid();
 		$view->layout = $layout = uniqid();
 		$view['this'] = $that = (object) [ 'property' => uniqid() ];

@@ -11,10 +11,11 @@
 
 namespace ICanBoogie\View;
 
+use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\EventCollectionProvider;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
-use ICanBoogie\PrototypeTrait;
+use ICanBoogie\Render\Renderer;
 use ICanBoogie\Render\TemplateName;
 use ICanBoogie\Render\TemplateNotFound;
 use ICanBoogie\Routing\Controller;
@@ -23,6 +24,7 @@ use ICanBoogie\Routing\Controller;
  * A view.
  *
  * @property-read Controller $controller The controller invoking the view.
+ * @property-read Renderer $renderer The controller invoking the view.
  * @property-read array $variables The variables to pass to the template.
  * @property mixed $content The content of the view.
  * @property string $layout The name of the layout that should decorate the content.
@@ -32,8 +34,7 @@ use ICanBoogie\Routing\Controller;
  */
 class View implements \ArrayAccess, \JsonSerializable
 {
-	use PrototypeTrait;
-	use ViewBindings;
+	use AccessorTrait;
 
 	const TEMPLATE_TYPE_VIEW = 1;
 	const TEMPLATE_TYPE_LAYOUT = 2;
@@ -43,35 +44,30 @@ class View implements \ArrayAccess, \JsonSerializable
 	const TEMPLATE_PREFIX_LAYOUT = '@';
 	const TEMPLATE_PREFIX_PARTIAL = '_';
 
-	static private $template_type_name = [
-
-		self::TEMPLATE_TYPE_VIEW => 'template',
-		self::TEMPLATE_TYPE_LAYOUT => 'layout',
-		self::TEMPLATE_TYPE_PARTIAL=> 'partial'
-
-	];
-
-	static private $template_prefix = [
-
-		self::TEMPLATE_TYPE_VIEW => self::TEMPLATE_PREFIX_VIEW,
-		self::TEMPLATE_TYPE_LAYOUT => self::TEMPLATE_PREFIX_LAYOUT,
-		self::TEMPLATE_TYPE_PARTIAL=> self::TEMPLATE_PREFIX_PARTIAL
-
-	];
-
 	/**
 	 * @var Controller
 	 */
 	private $controller;
 
 	/**
-	 * @see $controller
-	 *
 	 * @return Controller
 	 */
 	protected function get_controller()
 	{
 		return $this->controller;
+	}
+
+	/**
+	 * @var Renderer
+	 */
+	private $renderer;
+
+	/**
+	 * @return Renderer
+	 */
+	protected function get_renderer()
+	{
+		return $this->renderer;
 	}
 
 	/**
@@ -261,10 +257,12 @@ class View implements \ArrayAccess, \JsonSerializable
 	 * which only happens if the response is `null`.
 	 *
 	 * @param Controller $controller The controller that invoked the view.
+	 * @param Renderer $renderer
 	 */
-	public function __construct(Controller $controller)
+	public function __construct(Controller $controller, Renderer $renderer)
 	{
 		$this->controller = $controller;
+		$this->renderer = $renderer;
 		$this['view'] = $this;
 
 		EventCollectionProvider::provide()->attach_to($controller, function (Controller\ActionEvent $event, Controller $target) {
@@ -358,13 +356,19 @@ class View implements \ArrayAccess, \JsonSerializable
 
 		if ($prefix)
 		{
-			$name = TemplateName::from($name);
-			$name = $name->with_prefix($prefix);
+			$name = TemplateName::from($name)->with_prefix($prefix);
 		}
 
-		$resolver = $this->template_resolver;
+		try
+		{
+			return $this->renderer->resolve_template($name);
+		}
+		catch (TemplateNotFound $e)
+		{
+			$tried = $e->tried;
 
-		return $resolver->resolve($name, $this->engines->extensions, $tried);
+			return null;
+		}
 	}
 
 	/**
@@ -382,7 +386,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 *
 	 * @param mixed $content The content to decorate.
 	 *
-	 * @return mixed
+	 * @return string
 	 */
 	protected function decorate($content)
 	{
@@ -390,7 +394,12 @@ class View implements \ArrayAccess, \JsonSerializable
 
 		foreach ($decorators as $template)
 		{
-			$content = $this->render_with_template($content, $template, self::TEMPLATE_TYPE_LAYOUT);
+			$content = $this->renderer->render([
+
+				Renderer::OPTION_CONTENT => $content,
+				Renderer::OPTION_LAYOUT => $template
+
+			]);
 		}
 
 		return $content;
@@ -403,75 +412,14 @@ class View implements \ArrayAccess, \JsonSerializable
 	 */
 	public function render()
 	{
-		$steps = [
+		return $this->decorate($this->renderer->render([
 
-			[ $this->template, self::TEMPLATE_TYPE_VIEW ],
-			[ $this->layout, self::TEMPLATE_TYPE_LAYOUT ]
+			Renderer::OPTION_CONTENT => $this->content,
+			Renderer::OPTION_TEMPLATE => $this->template,
+			Renderer::OPTION_LAYOUT => $this->layout,
+			Renderer::OPTION_LOCALS => $this->variables
 
-		];
-
-		$content = $this->content;
-
-		foreach ($steps as list($template, $type))
-		{
-			if (!$template)
-			{
-				continue;
-			}
-
-			$content = $this->render_with_template($content, $template, $type);
-		}
-
-		return $this->decorate($content);
-	}
-
-	/**
-	 * Renders the content using a template.
-	 *
-	 * @param mixed $content The content to render.
-	 * @param string $template Name of the template.
-	 * @param string $type Type of the template.
-	 *
-	 * @return string
-	 */
-	protected function render_with_template($content, $template, $type)
-	{
-		$pathname = $this->resolve_template($template, self::$template_prefix[$type], $tries);
-
-		if (!$pathname)
-		{
-			$type_name = self::$template_type_name[$type];
-
-			throw new TemplateNotFound("There is no $type_name matching `$template`.", $tries);
-		}
-
-		list($thisArg, $variables) = $this->prepare_engine_args($content, $type);
-
-		return $this->engines->render($pathname, $thisArg, $variables);
-	}
-
-	/**
-	 * Prepares engine arguments.
-	 *
-	 * @param mixed $content
-	 * @param string $type
-	 *
-	 * @return array
-	 */
-	protected function prepare_engine_args($content, $type)
-	{
-		$variables = $this->variables;
-
-		if ($type == self::TEMPLATE_TYPE_LAYOUT)
-		{
-			$variables['content'] = $content;
-
-			return [ $this, $variables ];
-		}
-
-		$variables['view'] = $this;
-
-		return [ $content, $variables ];
+		]));
 	}
 
 	/**
