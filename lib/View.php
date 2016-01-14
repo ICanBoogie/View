@@ -330,6 +330,20 @@ class View implements \ArrayAccess, \JsonSerializable
 	}
 
 	/**
+	 * Assign multiple variables.
+	 *
+	 * @param array $variables
+	 *
+	 * @return $this
+	 */
+	public function assign(array $variables)
+	{
+		$this->variables = array_merge($this->variables, $variables);
+
+		return $this;
+	}
+
+	/**
 	 * Resolve a template pathname from its name and type.
 	 *
 	 * @param string $name Name of the template.

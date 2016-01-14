@@ -106,6 +106,18 @@ class ArticlesController extends Controller
 > **Note:** The `model` getter is provided by the [icanboogie/module][] package, and is only
 available if the route has a `module` property, which is automatic for routes defined by modules.
 
+The `assign()` method may be used to assign multiple values to the view with a single call:
+
+```php
+<?php
+
+$content = new SignupForm;
+$title = "Sign up";
+$params = $_POST;
+
+$this->view->assign(compact('content', 'title', 'params'));
+```
+
 
 
 

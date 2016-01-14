@@ -73,6 +73,21 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals([ 'content' => $content, 'v1' => $v1, 'v2' => $v2, 'view' => $view ], $view->variables);
 	}
 
+	public function test_assign()
+	{
+		$controller = $this->controller;
+		$content = self::generate_bytes();
+		$v1 = self::generate_bytes();
+		$v2 = self::generate_bytes();
+
+		$view = new View($controller);
+		$view->assign(compact('content', 'v1', 'v2'));
+
+		$this->assertSame($content, $view->content);
+		$this->assertSame($content, $view['content']);
+		$this->assertEquals([ 'content' => $content, 'v1' => $v1, 'v2' => $v2, 'view' => $view ], $view->variables);
+	}
+
 	/**
 	 * @dataProvider provide_test_get_template
 	 *
