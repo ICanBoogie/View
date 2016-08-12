@@ -618,7 +618,7 @@ EOT;
         $controller = $this
             ->getMockBuilder(Controller::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMockForAbstractClass();
 
         $renderer = $this
             ->getMockBuilder(Renderer::class)
