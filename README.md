@@ -458,11 +458,11 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 [Response]:               http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Response.html
 [Controller]:             http://api.icanboogie.org/routing/3.0/class-ICanBoogie.Routing.Controller.html
-[documentation]:          http://api.icanboogie.org/view/1.0/
-[ControllerBindings]:     http://api.icanboogie.org/view/1.0/class-ICanBoogie.View.ControllerBindings.html
-[View]:                   http://api.icanboogie.org/view/1.0/class-ICanBoogie.View.View.html
-[View\BeforeRenderEvent]: http://api.icanboogie.org/view/1.0/class-ICanBoogie.View.View.BeforeRenderEvent.html
-[View\AlterEvent]:        http://api.icanboogie.org/view/1.0/class-ICanBoogie.View.View.AlterEvent.html
+[documentation]:          http://api.icanboogie.org/view/0.8/
+[ControllerBindings]:     http://api.icanboogie.org/view/0.8/class-ICanBoogie.View.ControllerBindings.html
+[View]:                   http://api.icanboogie.org/view/0.8/class-ICanBoogie.View.View.html
+[View\BeforeRenderEvent]: http://api.icanboogie.org/view/0.8/class-ICanBoogie.View.View.BeforeRenderEvent.html
+[View\AlterEvent]:        http://api.icanboogie.org/view/0.8/class-ICanBoogie.View.View.AlterEvent.html
 [icanboogie/bind-view]:   https://github.com/ICanBoogie/bind-view
 [icanboogie/module]:      https://github.com/ICanBoogie/Module
 [icanboogie/render]:      https://github.com/ICanBoogie/Render
