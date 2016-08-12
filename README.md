@@ -64,7 +64,7 @@ Prototype::configure([
 ## Views and controllers
 
 Views are associated with controllers through the lazy getter `view`, thus `$this->view`
-is all is take to start a view inside a controller. The view then waits for
+is all is takes to start a view inside a controller. The view then waits for
 the `Controller::action` event, to perform its rendering.
 
 The following example demonstrates how a query of some articles is set as the view content,
@@ -354,17 +354,11 @@ $view->partial('articles/overview', [ 'article' => $article ]);
 
 ## Prototype methods
 
-The following prototypes method are used. The [ControllerBindings][] and [ViewBindings][] may be
+The following prototypes method are used. The [ControllerBindings][] trait may be
 used to help hinting code.
 
 - `ICanBoogie\Routing\Controller::lazy_get_view`: Returns the [View][] instance associated with
 the controller and also starts the view _magic_.
-
-- `ICanBoogie\View\View::lazy_get_engines`: Returns the engine collection available to parse the
-templates. By default, the instance is obtained using `ICanBoogie\Render\Hooks::lazy_get_engines`.
-
-- `ICanBoogie\View\View::lazy_get_template_resolver`:  Returns the template resolver. By default,
-the instance is obtained using `ICanBoogie\Render\Hooks::lazy_get_template_resolver`.
 
 
 
