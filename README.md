@@ -336,6 +336,22 @@ class ArticlesController extends Controller
 
 
 
+## Rendering a partial
+
+The `partial()` method renders a partial using the view's renderer:
+
+> Remember that the view is included in the variables passed to the template.
+
+```php
+<?php
+
+$view->partial('articles/overview', [ 'article' => $article ]);
+```
+
+
+
+
+
 ## Prototype methods
 
 The following prototypes method are used. The [ControllerBindings][] and [ViewBindings][] may be

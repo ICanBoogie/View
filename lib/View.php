@@ -423,6 +423,25 @@ class View implements \ArrayAccess, \JsonSerializable
 	}
 
 	/**
+	 * Render a partial.
+	 *
+	 * @param string $template
+	 * @param array $locals
+	 * @param array $options
+	 *
+	 * @return string
+	 */
+	public function partial($template, array $locals = [], array $options = [])
+	{
+		return $this->renderer->render([
+
+			Renderer::OPTION_PARTIAL => $template,
+			Renderer::OPTION_LOCALS => $locals
+
+		], $options);
+	}
+
+	/**
 	 * Renders the view on `Controller::action` event.
 	 *
 	 * **Note:** The view is not rendered if the event's response is defined, which is the case

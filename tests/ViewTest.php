@@ -594,6 +594,38 @@ EOT;
 		$this->assertEquals($expected, $view->render());
 	}
 
+	public function test_partial()
+    {
+        $expected = uniqid();
+        $template = uniqid();
+        $locals = [ uniqid() => uniqid() ];
+        $options = [ uniqid() => uniqid() ];
+
+        $controller = $this
+            ->getMockBuilder(Controller::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $renderer = $this
+            ->getMockBuilder(Renderer::class)
+            ->disableOriginalConstructor()
+            ->setMethods([ 'render' ])
+            ->getMock();
+        $renderer
+            ->expects($this->once())
+            ->method('render')
+            ->with([
+
+                Renderer::OPTION_PARTIAL => $template,
+                Renderer::OPTION_LOCALS => $locals
+
+            ], $options)
+            ->willReturn($expected);
+
+        $view = new View($controller, $renderer);
+        $this->assertSame($expected, $view->partial($template, $locals, $options));
+    }
+
 	public function test_view_render()
 	{
 		$request = Request::from("/");
