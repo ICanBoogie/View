@@ -279,6 +279,8 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 				if ($property == 'layout') throw new PropertyNotDefined($property);
 				elseif ($property == 'id') return 'admin:posts/index';
 
+                throw new \LogicException("Unexpected property: $property");
+
 			});
 
 		$c3 = $this
@@ -305,7 +307,8 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			[ $v2, $t2 ],
 			[ $v3, $t3 ],
 			$this->provide_test_get_layout_case3(),
-			$this->provide_test_get_layout_case4()
+			$this->provide_test_get_layout_case4(),
+            $this->provide_test_get_layout_case5(),
 
 		];
 	}
@@ -334,6 +337,8 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 						return 'posts/index';
 					case 'pattern':
 						return '/';
+                    default:
+                        throw new \LogicException("Unexpected property: $property");
 				}
 
 			});
@@ -389,6 +394,8 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 						return 'posts/index';
 					case 'pattern':
 						return '/';
+                    default:
+                        throw new \LogicException("Unexpected property: $property");
 				}
 
 			});
@@ -416,10 +423,11 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$view
 			->expects($this->exactly(2))
 			->method('resolve_template')
-			->willReturnCallback(function($name, $type) {
+			->willReturnCallback(function($name) {
 
 				if ($name == 'home') return false;
 				elseif ($name == 'page') return true;
+                throw new \LogicException("Unexpected name: $name");
 
 			});
 
@@ -448,6 +456,8 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 						return 'posts/index';
 					case 'pattern':
 						return '/';
+                    default:
+                        throw new \LogicException("Unexpected property: $property");
 				}
 
 			});
@@ -457,13 +467,17 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 			->disableOriginalConstructor()
 			->setMethods([ 'get_route' ])
 			->getMockForAbstractClass();
-
 		$controller->expects($this->any())
 			->method('get_route')
 			->willReturn($route);
 
+        $renderer = $this
+            ->getMockBuilder(Renderer::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
 		$view = $this->getMockBuilder(View::class)
-			->setConstructorArgs([ $controller ])
+			->setConstructorArgs([ $controller, $renderer ])
 			->setMethods([ 'resolve_template' ])
 			->getMock();
 
