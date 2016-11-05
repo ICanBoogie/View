@@ -36,15 +36,13 @@ use ICanBoogie\Render;
 use ICanBoogie\Routing\Controller;
 use ICanBoogie\View\View;
 
-use function ICanBoogie\Render\get_renderer;
-
 Prototype::configure([
 
 	Controller::class => [
 
 		'lazy_get_view' => function(Controller $controller) {
 
-			$view = new View($controller, get_renderer());
+			$view = new View($controller, \ICanBoogie\Render\get_renderer());
 
 			new View\AlterEvent($view);
 
@@ -139,7 +137,7 @@ $app->events->attach(function(View\AlterEvent $event, View $view) use ($app) {
 
 	// adding a template path
 	$view->template_resolver->add_path($app->modules[$module_id]->path . 'templates');
-	
+
 	// adding a variable
 	$view['log'] = $app->log->messages;
 
@@ -168,7 +166,8 @@ The template used to present the content of the view is resolved as follows:
 - From the `template` property of the view.
 - From the `template` property of the route.
 - From the `template` property of the controller.
-- From the name and action of the controller, if the controller has an `action` property e.g. "articles/show".
+- From the name and action of the controller, if the controller has an `action` property e.g.
+"articles/show".
 
 The layout used to decorate the template is resolved as follows:
 
@@ -181,8 +180,8 @@ The layout used to decorate the template is resolved as follows:
 - "default" otherwise.
 
 Because the `template` and `layout` properties are lazily created, you can define them instead of
-letting [View][] find the right template names. The following example demonstrates how to _cancel_ the
-template and define "admin" as layout:
+letting [View][] find the right template names. The following example demonstrates how to _cancel_
+the template and define "admin" as layout:
 
 ```php
 <?php
@@ -235,14 +234,14 @@ $app->events->attach(function(View\BeforeRenderEvent $event, View $view) use ($s
 
 	$hash = hash('sha256', json_encode($view));
 	$result = $storage->retrieve($hash);
-	
+
 	if ($result !== null)
 	{
 		$event->result = $result;
-		
+
 		return;
 	}
-	
+
 	$event->result = $result = $target->render();	$storage->store($key, $result);
 	$event->stop();	
 
@@ -267,7 +266,7 @@ The following example demonstrates how the response is altered to suit the JSON 
 
 // templates/json.php
 
-echo json_encode($content)
+echo json_encode($content);
 ```
 
 
