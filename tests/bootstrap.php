@@ -29,7 +29,7 @@ $autoload->addPsr4('ICanBoogie\\View\\ControllerBindingsTest\\', __DIR__ . '/Con
 
 $app = new Prototyped;
 
-EventCollectionProvider::using(function() {
+EventCollectionProvider::define(function() {
 
 	static $collection;
 

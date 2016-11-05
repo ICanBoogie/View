@@ -35,13 +35,15 @@ use ICanBoogie\Prototype;
 use ICanBoogie\Routing\Controller;
 use ICanBoogie\View\View;
 
-Prototype::configure([
+use function ICanBoogie\Render\get_renderer;
+
+Prototype::bind([
 
 	Controller::class => [
 
 		'lazy_get_view' => function(Controller $controller) {
 
-			$view = new View($controller, \ICanBoogie\Render\get_renderer());
+			$view = new View($controller, get_renderer());
 
 			new View\AlterEvent($view);
 
@@ -397,7 +399,7 @@ view is rendered. Event hooks may use this event to provide a cached result.
 
 ## Requirements
 
-The package requires PHP 5.5 or later.
+The package requires PHP 5.6 or later.
 
 
 
@@ -468,13 +470,13 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 
 
-[Response]:               http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Response.html
-[Controller]:             http://api.icanboogie.org/routing/3.0/class-ICanBoogie.Routing.Controller.html
-[documentation]:          http://api.icanboogie.org/view/0.8/
-[ControllerBindings]:     http://api.icanboogie.org/view/0.8/class-ICanBoogie.View.ControllerBindings.html
-[View]:                   http://api.icanboogie.org/view/0.8/class-ICanBoogie.View.View.html
-[View\BeforeRenderEvent]: http://api.icanboogie.org/view/0.8/class-ICanBoogie.View.View.BeforeRenderEvent.html
-[View\AlterEvent]:        http://api.icanboogie.org/view/0.8/class-ICanBoogie.View.View.AlterEvent.html
+[Response]:               http://api.icanboogie.org/http/3.0/class-ICanBoogie.HTTP.Response.html
+[Controller]:             http://api.icanboogie.org/routing/4.0/class-ICanBoogie.Routing.Controller.html
+[documentation]:          http://api.icanboogie.org/view/0.9/
+[ControllerBindings]:     http://api.icanboogie.org/view/0.9/class-ICanBoogie.View.ControllerBindings.html
+[View]:                   http://api.icanboogie.org/view/0.9/class-ICanBoogie.View.View.html
+[View\BeforeRenderEvent]: http://api.icanboogie.org/view/0.9/class-ICanBoogie.View.View.BeforeRenderEvent.html
+[View\AlterEvent]:        http://api.icanboogie.org/view/0.9/class-ICanBoogie.View.View.AlterEvent.html
 [icanboogie/bind-view]:   https://github.com/ICanBoogie/bind-view
 [icanboogie/module]:      https://github.com/ICanBoogie/Module
 [icanboogie/render]:      https://github.com/ICanBoogie/Render
