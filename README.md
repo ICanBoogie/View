@@ -32,7 +32,6 @@ The binding is defined by the [ControllerBindings][] traits.
 <?php
 
 use ICanBoogie\Prototype;
-use ICanBoogie\Render;
 use ICanBoogie\Routing\Controller;
 use ICanBoogie\View\View;
 
@@ -186,6 +185,14 @@ the template and define "admin" as layout:
 ```php
 <?php
 
+use ICanBoogie\Routing\Controller;
+use ICanBoogie\View\ControllerBindings as ViewBindings;
+
+class ArticlesController extends Controller
+{
+	use Controller\ActionTrait;
+	use ViewBindings;
+
 	// …
 
 	protected function action_index()
@@ -196,6 +203,7 @@ the template and define "admin" as layout:
 	}
 
 	// …
+}
 ```
 
 The templates and layouts are usually specified as _names_ e.g. "page" or "articles/show", and not
@@ -230,6 +238,8 @@ its hash is perfect as cache key:
 
 use ICanBoogie\View\View;
 
+/* @var $storage \ICanBoogie\Storage\Storage */
+
 $app->events->attach(function(View\BeforeRenderEvent $event, View $view) use ($storage) {
 
 	$hash = hash('sha256', json_encode($view));
@@ -242,8 +252,9 @@ $app->events->attach(function(View\BeforeRenderEvent $event, View $view) use ($s
 		return;
 	}
 
-	$event->result = $result = $target->render();	$storage->store($key, $result);
-	$event->stop();	
+	$event->result = $result = $view->render();
+	$storage->store($hash, $result);
+	$event->stop();
 
 });
 ```
@@ -265,6 +276,8 @@ The following example demonstrates how the response is altered to suit the JSON 
 <?php
 
 // templates/json.php
+
+/* @var $content mixed */
 
 echo json_encode($content);
 ```
