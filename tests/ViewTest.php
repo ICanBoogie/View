@@ -21,7 +21,7 @@ use ICanBoogie\Render\TemplateNotFound;
 use ICanBoogie\Routing\Controller;
 use ICanBoogie\Routing\Route;
 
-class ViewTest extends \PHPUnit_Framework_TestCase
+class ViewTest extends \PHPUnit\Framework\TestCase
 {
 	const FIXTURE_CONTENT = "TESTING";
 
