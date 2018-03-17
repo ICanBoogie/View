@@ -2,7 +2,6 @@
 
 [![Release](https://img.shields.io/packagist/v/icanboogie/view.svg)](https://packagist.org/packages/icanboogie/view)
 [![Build Status](https://img.shields.io/travis/ICanBoogie/View/master.svg)](http://travis-ci.org/ICanBoogie/View)
-[![HHVM](https://img.shields.io/hhvm/icanboogie/view.svg)](http://hhvm.h4cc.de/package/icanboogie/view)
 [![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/View/master.svg)](https://scrutinizer-ci.com/g/ICanBoogie/View)
 [![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/View/master.svg)](https://coveralls.io/r/ICanBoogie/View)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/view.svg)](https://packagist.org/packages/icanboogie/view)
@@ -470,13 +469,13 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 
 
-[Response]:               https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.Response.html
-[Controller]:             https://icanboogie.org/api/routing/4.0/class-ICanBoogie.Routing.Controller.html
-[documentation]:          https://icanboogie.org/api/view/0.9/
-[ControllerBindings]:     https://icanboogie.org/api/view/0.9/class-ICanBoogie.View.ControllerBindings.html
-[View]:                   https://icanboogie.org/api/view/0.9/class-ICanBoogie.View.View.html
-[View\BeforeRenderEvent]: https://icanboogie.org/api/view/0.9/class-ICanBoogie.View.View.BeforeRenderEvent.html
-[View\AlterEvent]:        https://icanboogie.org/api/view/0.9/class-ICanBoogie.View.View.AlterEvent.html
+[Response]:               https://icanboogie.org/api/http/4.0/class-ICanBoogie.HTTP.Response.html
+[Controller]:             https://icanboogie.org/api/routing/5.0/class-ICanBoogie.Routing.Controller.html
+[documentation]:          https://icanboogie.org/api/view/0.10/
+[ControllerBindings]:     https://icanboogie.org/api/view/0.10/class-ICanBoogie.View.ControllerBindings.html
+[View]:                   https://icanboogie.org/api/view/0.10/class-ICanBoogie.View.View.html
+[View\BeforeRenderEvent]: https://icanboogie.org/api/view/0.10/class-ICanBoogie.View.View.BeforeRenderEvent.html
+[View\AlterEvent]:        https://icanboogie.org/api/view/0.10/class-ICanBoogie.View.View.AlterEvent.html
 [icanboogie/bind-view]:   https://github.com/ICanBoogie/bind-view
 [icanboogie/module]:      https://github.com/ICanBoogie/Module
 [icanboogie/render]:      https://github.com/ICanBoogie/Render

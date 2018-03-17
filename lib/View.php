@@ -49,10 +49,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 */
 	private $controller;
 
-	/**
-	 * @return Controller
-	 */
-	protected function get_controller()
+	protected function get_controller(): Controller
 	{
 		return $this->controller;
 	}
@@ -62,10 +59,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 */
 	private $renderer;
 
-	/**
-	 * @return Renderer
-	 */
-	protected function get_renderer()
+	protected function get_renderer(): Renderer
 	{
 		return $this->renderer;
 	}
@@ -77,12 +71,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 */
 	private $variables = [];
 
-	/**
-	 * @see $variables
-	 *
-	 * @return array
-	 */
-	protected function get_variables()
+	protected function get_variables(): array
 	{
 		return $this->variables;
 	}
@@ -121,7 +110,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 *
 	 * @return string|null
 	 */
-	protected function lazy_get_template()
+	protected function lazy_get_template(): ?string
 	{
 		$controller = $this->controller;
 
@@ -150,7 +139,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 *
 	 * @internal
 	 */
-	protected function get_template_resolvers()
+	protected function get_template_resolvers(): array
 	{
 		return [
 
@@ -187,9 +176,9 @@ class View implements \ArrayAccess, \JsonSerializable
 	 * - If the "@page" template is available, "page" is returned.
 	 * - "default" is returned.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
-	protected function lazy_get_layout()
+	protected function lazy_get_layout(): ?string
 	{
 		$controller = $this->controller;
 
@@ -205,7 +194,6 @@ class View implements \ArrayAccess, \JsonSerializable
 				# Resolver failed, we continue with the next.
 				#
 			}
-
 		}
 
 		if (strpos($controller->route->id, "admin:") === 0)
@@ -233,7 +221,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 *
 	 * @internal
 	 */
-	protected function get_layout_resolvers()
+	protected function get_layout_resolvers(): array
 	{
 		return [
 
@@ -293,7 +281,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 */
 	public function offsetExists($offset)
 	{
-		return array_key_exists($offset, $this->variables);
+		return \array_key_exists($offset, $this->variables);
 	}
 
 	/**
@@ -334,9 +322,9 @@ class View implements \ArrayAccess, \JsonSerializable
 	 *
 	 * @return $this
 	 */
-	public function assign(array $variables)
+	public function assign(array $variables): self
 	{
-		$this->variables = array_merge($this->variables, $variables);
+		$this->variables = \array_merge($this->variables, $variables);
 
 		return $this;
 	}
@@ -350,10 +338,8 @@ class View implements \ArrayAccess, \JsonSerializable
 	 *
 	 * @return string|false
 	 */
-	protected function resolve_template($name, $prefix, &$tried = [])
+	protected function resolve_template(string $name, string $prefix, array &$tried = [])
 	{
-		$tried = $tried ?: [];
-
 		if ($prefix)
 		{
 			$name = TemplateName::from($name)->with_prefix($prefix);
@@ -376,7 +362,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 *
 	 * @param string $template Name of the template.
 	 */
-	public function decorate_with($template)
+	public function decorate_with($template): void
 	{
 		$this->decorators[] = $template;
 	}
@@ -388,7 +374,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 *
 	 * @return string
 	 */
-	protected function decorate($content)
+	protected function decorate($content): string
 	{
 		$decorators = array_reverse($this->decorators);
 
@@ -410,7 +396,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 *
 	 * @return string
 	 */
-	public function render()
+	public function render(): string
 	{
 		return $this->decorate($this->renderer->render([
 
@@ -431,7 +417,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 *
 	 * @return string
 	 */
-	public function partial($template, array $locals = [], array $options = [])
+	public function partial(string $template, array $locals = [], array $options = []): string
 	{
 		return $this->renderer->render([
 
@@ -449,7 +435,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 *
 	 * @param Controller\ActionEvent $event
 	 */
-	protected function on_action(Controller\ActionEvent $event)
+	protected function on_action(Controller\ActionEvent $event): void
 	{
 		if ($event->result !== null)
 		{
@@ -473,7 +459,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 *
 	 * @return array
 	 */
-	private function ensure_without_this(array $array)
+	private function ensure_without_this(array $array): array
 	{
 		foreach ($array as $key => $value)
 		{

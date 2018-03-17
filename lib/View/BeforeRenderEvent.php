@@ -16,15 +16,15 @@ class BeforeRenderEvent extends Event
 	const TYPE = 'render:before';
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
 	public $result;
 
 	/**
 	 * @param View $target
-	 * @param string $result
+	 * @param string|null $result
 	 */
-	public function __construct(View $target, &$result)
+	public function __construct(View $target, ?string &$result)
 	{
 		$this->result = &$result;
 
