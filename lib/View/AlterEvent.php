@@ -19,13 +19,10 @@ use ICanBoogie\View\View;
  *
  * Event hooks may use this event to alter the engine collection.
  */
-class AlterEvent extends Event
+final class AlterEvent extends Event
 {
-	const TYPE = 'alter';
+	public const TYPE = 'alter';
 
-	/**
-	 * @param View $target
-	 */
 	public function __construct(View $target)
 	{
 		parent::__construct($target, self::TYPE);
