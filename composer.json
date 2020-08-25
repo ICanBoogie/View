@@ -21,13 +21,13 @@
 		"source": "https://github.com/ICanBoogie/View"
 	},
 	"minimum-stability": "dev",
-	"prefer-dist": true,
 	"prefer-stable": true,
 	"require": {
-		"php": "^7.2",
-		"icanboogie/routing": "^5.0",
-		"icanboogie/render": "^0.7",
-		"icanboogie/event": "^4.0|^4.0"
+		"php": ">=7.2",
+		"ext-json": "*",
+		"icanboogie/event": "^4.0",
+		"icanboogie/render": "^0.7|^0.8",
+		"icanboogie/routing": "^5.0|^4.0"
 	},
 	"suggest": {
 		"icanboogie/bind-view": "Binds the package to ICanBoogie"
@@ -41,5 +41,8 @@
 		"psr-4": {
 			"ICanBoogie\\View\\": "tests"
 		}
+	},
+	"config": {
+		"sort-packages": true
 	}
 }

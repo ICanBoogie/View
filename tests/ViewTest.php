@@ -11,23 +11,30 @@
 
 namespace ICanBoogie\View;
 
+use Closure;
 use ICanBoogie\EventCollection;
 use ICanBoogie\EventCollectionProvider;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
+use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\Render\Renderer;
 use ICanBoogie\Render\TemplateNotFound;
 use ICanBoogie\Routing\Controller;
 use ICanBoogie\Routing\Route;
+use LogicException;
+use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
+use function ICanBoogie\Render\get_renderer;
+use function random_bytes;
 
-class ViewTest extends \PHPUnit\Framework\TestCase
+class ViewTest extends TestCase
 {
 	const FIXTURE_CONTENT = "TESTING";
 
 	static private function generate_bytes($length = 2048)
 	{
-		return openssl_random_pseudo_bytes($length);
+		return random_bytes($length);
 	}
 
 	/**
@@ -45,14 +52,14 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 	 */
 	private $events;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		$this->controller = $this
 			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
 			->getMockForAbstractClass();
 
-		$this->renderer = \ICanBoogie\Render\get_renderer();
+		$this->renderer = get_renderer();
 
 		$this->events = EventCollectionProvider::provide();
 	}
@@ -123,7 +130,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$c1 = $this
 			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'get_route' ])
+			->onlyMethods([ 'get_route' ])
 			->getMockForAbstractClass();
 
 		$c1->expects($this->once())
@@ -137,7 +144,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$c2 = $this
 			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'get_route' ])
+			->onlyMethods([ 'get_route' ])
 			->getMockForAbstractClass();
 
 		$c2->expects($this->once())
@@ -158,7 +165,8 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$c3 = $this
 			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'get_route', 'get_name', 'get_action' ])
+			->onlyMethods([ 'get_route', 'get_name' ])
+			->addMethods([ 'get_action' ])
 			->getMockForAbstractClass();
 
 		$c3->expects($this->once())
@@ -180,7 +188,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$c4 = $this
 			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'get_route' ])
+			->onlyMethods([ 'get_route' ])
 			->getMockForAbstractClass();
 
 		$c4->expects($this->once())
@@ -228,7 +236,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$c1 = $this
 			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'get_route' ])
+			->onlyMethods([ 'get_route' ])
 			->getMockForAbstractClass();
 
 		$c1->expects($this->once())
@@ -248,7 +256,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$c2 = $this
 			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'get_route' ])
+			->onlyMethods([ 'get_route' ])
 			->getMockForAbstractClass();
 
 		$c2->expects($this->once())
@@ -270,7 +278,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$c3_route = $this
 			->getMockBuilder(Route::class)
 			->disableOriginalConstructor()
-			->setMethods([ '__get' ])
+			->onlyMethods([ '__get' ])
 			->getMock();
 		$c3_route->expects($this->any())
 			->method('__get')
@@ -279,14 +287,14 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 				if ($property == 'layout') throw new PropertyNotDefined($property);
 				elseif ($property == 'id') return 'admin:posts/index';
 
-                throw new \LogicException("Unexpected property: $property");
+                throw new LogicException("Unexpected property: $property");
 
 			});
 
 		$c3 = $this
 			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'get_route' ])
+			->onlyMethods([ 'get_route' ])
 			->getMockForAbstractClass();
 
 		$c3->expects($this->any())
@@ -323,7 +331,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$route = $this
 			->getMockBuilder(Route::class)
 			->disableOriginalConstructor()
-			->setMethods([ '__get' ])
+			->onlyMethods([ '__get' ])
 			->getMock();
 		$route->expects($this->any())
 			->method('__get')
@@ -338,7 +346,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 					case 'pattern':
 						return '/';
                     default:
-                        throw new \LogicException("Unexpected property: $property");
+                        throw new LogicException("Unexpected property: $property");
 				}
 
 			});
@@ -346,7 +354,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$controller = $this
 			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'get_route' ])
+			->onlyMethods([ 'get_route' ])
 			->getMockForAbstractClass();
 
 		$controller->expects($this->any())
@@ -360,7 +368,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 
 		$view = $this->getMockBuilder(View::class)
 			->setConstructorArgs([ $controller, $renderer ])
-			->setMethods([ 'resolve_template' ])
+			->onlyMethods([ 'resolve_template' ])
 			->getMock();
 
 		$view
@@ -380,7 +388,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$route = $this
 			->getMockBuilder(Route::class)
 			->disableOriginalConstructor()
-			->setMethods([ '__get' ])
+			->onlyMethods([ '__get' ])
 			->getMock();
 		$route->expects($this->any())
 			->method('__get')
@@ -395,7 +403,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 					case 'pattern':
 						return '/';
                     default:
-                        throw new \LogicException("Unexpected property: $property");
+                        throw new LogicException("Unexpected property: $property");
 				}
 
 			});
@@ -403,7 +411,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$controller = $this
 			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'get_route' ])
+			->onlyMethods([ 'get_route' ])
 			->getMockForAbstractClass();
 
 		$controller->expects($this->any())
@@ -417,7 +425,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 
 		$view = $this->getMockBuilder(View::class)
 			->setConstructorArgs([ $controller, $renderer ])
-			->setMethods([ 'resolve_template' ])
+			->onlyMethods([ 'resolve_template' ])
 			->getMock();
 
 		$view
@@ -427,7 +435,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 
 				if ($name == 'home') return false;
 				elseif ($name == 'page') return true;
-                throw new \LogicException("Unexpected name: $name");
+                throw new LogicException("Unexpected name: $name");
 
 			});
 
@@ -442,7 +450,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$route = $this
 			->getMockBuilder(Route::class)
 			->disableOriginalConstructor()
-			->setMethods([ '__get' ])
+			->onlyMethods([ '__get' ])
 			->getMock();
 		$route->expects($this->any())
 			->method('__get')
@@ -457,7 +465,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 					case 'pattern':
 						return '/';
                     default:
-                        throw new \LogicException("Unexpected property: $property");
+                        throw new LogicException("Unexpected property: $property");
 				}
 
 			});
@@ -465,7 +473,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$controller = $this
 			->getMockBuilder(Controller::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'get_route' ])
+			->onlyMethods([ 'get_route' ])
 			->getMockForAbstractClass();
 		$controller->expects($this->any())
 			->method('get_route')
@@ -478,7 +486,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 
 		$view = $this->getMockBuilder(View::class)
 			->setConstructorArgs([ $controller, $renderer ])
-			->setMethods([ 'resolve_template' ])
+			->onlyMethods([ 'resolve_template' ])
 			->getMock();
 
 		$view
@@ -501,12 +509,10 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$this->assertFalse(isset($view['content']));
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\OffsetNotDefined
-	 */
 	public function test_should_throw_exception_on_undefined_offset()
 	{
 		$view = new View($this->controller, $this->renderer);
+		$this->expectException(OffsetNotDefined::class);
 		$view[uniqid()];
 	}
 
@@ -523,7 +529,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$view = $this
 			->getMockBuilder(View::class)
 			->setConstructorArgs([ $this->controller, $this->renderer ])
-			->setMethods([ 'get_template', 'get_layout' ])
+			->addMethods([ 'get_template', 'get_layout' ])
 			->getMock();
 		$view
 			->expects($this->once())
@@ -539,8 +545,8 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		}
 		catch (TemplateNotFound $e)
 		{
-			$this->assertContains("no template matching", $e->getMessage());
-			$this->assertContains($template, $e->getMessage());
+			$this->assertStringContainsString("no template matching", $e->getMessage());
+			$this->assertStringContainsString($template, $e->getMessage());
 		}
 	}
 
@@ -551,7 +557,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$view = $this
 			->getMockBuilder(View::class)
 			->setConstructorArgs([ $this->controller, $this->renderer ])
-			->setMethods([ 'get_template', 'get_layout' ])
+			->addMethods([ 'get_template', 'get_layout' ])
 			->getMock();
 		$view
 			->expects($this->once())
@@ -567,7 +573,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		}
 		catch (TemplateNotFound $e)
 		{
-			$this->assertContains($template, $e->getMessage());
+			$this->assertStringContainsString($template, $e->getMessage());
 		}
 	}
 
@@ -576,7 +582,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 		$view = $this
 			->getMockBuilder(View::class)
 			->setConstructorArgs([ $this->controller, $this->renderer ])
-			->setMethods([ 'get_template', 'get_layout' ])
+			->addMethods([ 'get_template', 'get_layout' ])
 			->getMock();
 		$view
 			->expects($this->once())
@@ -623,7 +629,7 @@ EOT;
         $renderer = $this
             ->getMockBuilder(Renderer::class)
             ->disableOriginalConstructor()
-            ->setMethods([ 'render' ])
+            ->onlyMethods([ 'render' ])
             ->getMock();
         $renderer
             ->expects($this->once())
@@ -636,6 +642,8 @@ EOT;
             ], $options)
             ->willReturn($expected);
 
+        /* @var Controller $controller */
+
         $view = new View($controller, $renderer);
         $this->assertSame($expected, $view->partial($template, $locals, $options));
     }
@@ -647,7 +655,7 @@ EOT;
 
 		$controller = $this
 			->getMockBuilder(Controller::class)
-			->setMethods([ 'action' ])
+			->onlyMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
 			->expects($this->once())
@@ -668,7 +676,7 @@ EOT;
 
 		$controller = $this
 			->getMockBuilder(Controller::class)
-			->setMethods([ 'action' ])
+			->onlyMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
 			->expects($this->once())
@@ -697,12 +705,12 @@ EOT
 
 		$controller = $this
 			->getMockBuilder(Controller::class)
-			->setMethods([ 'action' ])
+			->onlyMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
 			->expects($this->once())
 			->method('action')
-			->willReturnCallback(\Closure::bind(function() {
+			->willReturnCallback(Closure::bind(function() {
 
 				/* @var $this Controller|ControllerBindings */
 				$this->view->content = ViewTest::FIXTURE_CONTENT;
@@ -725,12 +733,12 @@ EOT
 
 		$controller = $this
 			->getMockBuilder(Controller::class)
-			->setMethods([ 'action' ])
+			->onlyMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
 			->expects($this->once())
 			->method('action')
-			->willReturnCallback(\Closure::bind(function() {
+			->willReturnCallback(Closure::bind(function() {
 
 				/* @var $this Controller|ControllerBindings */
 				$this->view->content = [ 1 => "one", 2 => "two" ];
@@ -754,7 +762,7 @@ EOT
 		$view = $this
 			->getMockBuilder(View::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'render' ])
+			->onlyMethods([ 'render' ])
 			->getMock();
 		$view
 			->expects($this->never())
@@ -771,7 +779,7 @@ EOT
 
 		$event->result = $result;
 
-		$on_action = new \ReflectionMethod($view, 'on_action');
+		$on_action = new ReflectionMethod($view, 'on_action');
 		$on_action->setAccessible(true);
 		$on_action->invoke($view, $event);
 

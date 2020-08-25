@@ -398,7 +398,7 @@ view is rendered. Event hooks may use this event to provide a cached result.
 
 ## Requirements
 
-The package requires PHP 5.6 or later.
+The package requires PHP 7.2 or later.
 
 
 
@@ -481,4 +481,4 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [icanboogie/render]:      https://github.com/ICanBoogie/Render
 [icanboogie/routing]:     https://github.com/ICanBoogie/Routing
 [ICanBoogie]:             https://github.com/ICanBoogie/ICanBoogie
-[icybee/patron-view-support]: https://github.com/Icybee/PatronViewSupport 
+[icybee/patron-view-support]: https://github.com/Icybee/PatronViewSupport

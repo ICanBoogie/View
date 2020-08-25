@@ -11,6 +11,7 @@
 
 namespace ICanBoogie\View;
 
+use ArrayAccess;
 use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\EventCollectionProvider;
 use ICanBoogie\OffsetNotDefined;
@@ -19,6 +20,10 @@ use ICanBoogie\Render\Renderer;
 use ICanBoogie\Render\TemplateName;
 use ICanBoogie\Render\TemplateNotFound;
 use ICanBoogie\Routing\Controller;
+use JsonSerializable;
+use function array_key_exists;
+use function array_merge;
+use function array_reverse;
 
 /**
  * A view.
@@ -32,17 +37,28 @@ use ICanBoogie\Routing\Controller;
  * @property-read callable[] $layout_resolvers @internal
  * @property-read callable[] $template_resolvers @internal
  */
-class View implements \ArrayAccess, \JsonSerializable
+class View implements ArrayAccess, JsonSerializable
 {
+	/**
+	 * @uses get_controller
+	 * @uses get_renderer
+	 * @uses get_variables
+	 * @uses get_content
+	 * @uses set_content
+	 * @uses lazy_get_template
+	 * @uses get_template_resolvers
+	 * @uses lazy_get_layout
+	 * @uses get_layout_resolvers
+	 */
 	use AccessorTrait;
 
-	const TEMPLATE_TYPE_VIEW = 1;
-	const TEMPLATE_TYPE_LAYOUT = 2;
-	const TEMPLATE_TYPE_PARTIAL = 3;
+	public const TEMPLATE_TYPE_VIEW = 1;
+	public const TEMPLATE_TYPE_LAYOUT = 2;
+	public const TEMPLATE_TYPE_PARTIAL = 3;
 
-	const TEMPLATE_PREFIX_VIEW = '';
-	const TEMPLATE_PREFIX_LAYOUT = '@';
-	const TEMPLATE_PREFIX_PARTIAL = '_';
+	public const TEMPLATE_PREFIX_VIEW = '';
+	public const TEMPLATE_PREFIX_LAYOUT = '@';
+	public const TEMPLATE_PREFIX_PARTIAL = '_';
 
 	/**
 	 * @var Controller
@@ -107,8 +123,6 @@ class View implements \ArrayAccess, \JsonSerializable
 	 * - The `template` property of the controller.
 	 * - The `{$controller->name}/{$controller->action}`, if the controller has an `action`
 	 * property.
-	 *
-	 * @return string|null
 	 */
 	protected function lazy_get_template(): ?string
 	{
@@ -175,8 +189,6 @@ class View implements \ArrayAccess, \JsonSerializable
 	 * - If the route pattern is "/" and a "home" layout template is available, "home" is returned.
 	 * - If the "@page" template is available, "page" is returned.
 	 * - "default" is returned.
-	 *
-	 * @return string|null
 	 */
 	protected function lazy_get_layout(): ?string
 	{
@@ -201,7 +213,7 @@ class View implements \ArrayAccess, \JsonSerializable
 			return 'admin';
 		}
 
-		if ($controller->route->pattern == "/" && $this->resolve_template('home', self::TEMPLATE_PREFIX_LAYOUT))
+		if ($controller->route->pattern === "/" && $this->resolve_template('home', self::TEMPLATE_PREFIX_LAYOUT))
 		{
 			return 'home';
 		}
@@ -243,9 +255,6 @@ class View implements \ArrayAccess, \JsonSerializable
 	/**
 	 * An event hook is attached to the `action` event of the controller for late rendering,
 	 * which only happens if the response is `null`.
-	 *
-	 * @param Controller $controller The controller that invoked the view.
-	 * @param Renderer $renderer
 	 */
 	public function __construct(Controller $controller, Renderer $renderer)
 	{
@@ -281,7 +290,7 @@ class View implements \ArrayAccess, \JsonSerializable
 	 */
 	public function offsetExists($offset)
 	{
-		return \array_key_exists($offset, $this->variables);
+		return array_key_exists($offset, $this->variables);
 	}
 
 	/**
@@ -318,13 +327,11 @@ class View implements \ArrayAccess, \JsonSerializable
 	/**
 	 * Assign multiple variables.
 	 *
-	 * @param array $variables
-	 *
 	 * @return $this
 	 */
 	public function assign(array $variables): self
 	{
-		$this->variables = \array_merge($this->variables, $variables);
+		$this->variables = array_merge($this->variables, $variables);
 
 		return $this;
 	}
@@ -359,10 +366,8 @@ class View implements \ArrayAccess, \JsonSerializable
 
 	/**
 	 * Add a template to decorate the content with.
-	 *
-	 * @param string $template Name of the template.
 	 */
-	public function decorate_with($template): void
+	public function decorate_with(string $template): void
 	{
 		$this->decorators[] = $template;
 	}
@@ -371,8 +376,6 @@ class View implements \ArrayAccess, \JsonSerializable
 	 * Decorate the content.
 	 *
 	 * @param mixed $content The content to decorate.
-	 *
-	 * @return string
 	 */
 	protected function decorate($content): string
 	{
@@ -391,11 +394,6 @@ class View implements \ArrayAccess, \JsonSerializable
 		return $content;
 	}
 
-	/**
-	 * Render the view.
-	 *
-	 * @return string
-	 */
 	public function render(): string
 	{
 		return $this->decorate($this->renderer->render([
@@ -410,12 +408,6 @@ class View implements \ArrayAccess, \JsonSerializable
 
 	/**
 	 * Render a partial.
-	 *
-	 * @param string $template
-	 * @param array $locals
-	 * @param array $options
-	 *
-	 * @return string
 	 */
 	public function partial(string $template, array $locals = [], array $options = []): string
 	{
@@ -454,10 +446,6 @@ class View implements \ArrayAccess, \JsonSerializable
 
 	/**
 	 * Ensures the array does not include our instance.
-	 *
-	 * @param array $array
-	 *
-	 * @return array
 	 */
 	private function ensure_without_this(array $array): array
 	{

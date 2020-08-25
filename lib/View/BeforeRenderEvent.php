@@ -11,19 +11,15 @@ use ICanBoogie\View\View;
  * Event hooks may use this event to alter the view before it is rendered, or provide a cached
  * result.
  */
-class BeforeRenderEvent extends Event
+final class BeforeRenderEvent extends Event
 {
-	const TYPE = 'render:before';
+	public const TYPE = 'render:before';
 
 	/**
 	 * @var string|null
 	 */
 	public $result;
 
-	/**
-	 * @param View $target
-	 * @param string|null $result
-	 */
 	public function __construct(View $target, ?string &$result)
 	{
 		$this->result = &$result;
