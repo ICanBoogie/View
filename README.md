@@ -1,7 +1,7 @@
 # View
 
 [![Release](https://img.shields.io/packagist/v/icanboogie/view.svg)](https://packagist.org/packages/icanboogie/view)
-[![Build Status](https://img.shields.io/travis/ICanBoogie/View/master.svg)](http://travis-ci.org/ICanBoogie/View)
+[![Build Status](https://img.shields.io/github/workflow/status/ICanBoogie/View/test)](https://github.com/ICanBoogie/View/actions?query=workflow%3Atest)
 [![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/View/master.svg)](https://scrutinizer-ci.com/g/ICanBoogie/View)
 [![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/View/master.svg)](https://coveralls.io/r/ICanBoogie/View)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/view.svg)](https://packagist.org/packages/icanboogie/view)
@@ -396,37 +396,11 @@ view is rendered. Event hooks may use this event to provide a cached result.
 
 
 
-## Requirements
-
-The package requires PHP 7.2 or later.
-
-
-
-
-
 ## Installation
 
-The recommended way to install this package is through [Composer](http://getcomposer.org/):
-
-```
+```bash
 $ composer require icanboogie/view
 ```
-
-The following package is required, you might want to check it out:
-
-* [icanboogie/render](https://packagist.org/packages/icanboogie/render)
-* [icanboogie/routing](https://packagist.org/packages/icanboogie/routing)
-
-
-
-
-
-### Cloning the repository
-
-The package is [available on GitHub](https://github.com/ICanBoogie/View), its repository can be
-cloned with the following command line:
-
-	$ git clone https://github.com/ICanBoogie/View.git
 
 
 
@@ -446,16 +420,9 @@ the `make doc` command. The documentation is generated in the `build/docs` direc
 
 ## Testing
 
-The test suite is ran with the `make test` command. [PHPUnit](https://phpunit.de/) and
-[Composer](http://getcomposer.org/) need to be globally available to run the suite. The command
-installs dependencies as required. The `make test-coverage` command runs test suite and also
-creates an HTML coverage report in `build/coverage`. The directory can later be cleaned with
-the `make clean` command.
-
-The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
-
-[![Build Status](https://img.shields.io/travis/ICanBoogie/View/master.svg)](https://travis-ci.org/ICanBoogie/View)
-[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/View/master.svg)](https://coveralls.io/r/ICanBoogie/View)
+Run `make test-container` to create and log into the test container, then run `make test` to run the
+test suite. Alternatively, run `make test-coverage` to run the test suite with test coverage. Open
+`build/coverage/index.html` to see the breakdown of the code coverage.
 
 
 
@@ -463,7 +430,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 ## License
 
-**icanboogie/view** is licensed under the New BSD License - See the [LICENSE](LICENSE) file for details.
+**icanboogie/view** is released under the [New BSD License](LICENSE).
 
 
 
