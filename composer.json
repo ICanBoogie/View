@@ -45,7 +45,7 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"ICanBoogie\\View\\": "tests"
+			"Test\\ICanBoogie\\View\\": "tests"
 		}
 	}
 }

@@ -9,16 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\View;
+namespace Test\ICanBoogie\View;
 
 use ICanBoogie\EventCollection;
 use ICanBoogie\EventCollectionProvider;
-use ICanBoogie\Prototyped;
 use ICanBoogie\Prototype;
+use ICanBoogie\Prototyped;
 use ICanBoogie\Render;
-use ICanBoogie\Render\TemplateResolver;
 use ICanBoogie\Render\BasicTemplateResolver;
-use ICanBoogie\Routing\Controller;
+use ICanBoogie\Routing\ControllerAbstract;
+use ICanBoogie\View\View;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -26,21 +26,32 @@ require __DIR__ . '/../vendor/autoload.php';
 # Building the tiniest fake app for Controller
 #
 
-$app = new Prototyped;
+$app = new Prototyped();
 
-EventCollectionProvider::define(function() {
-
+EventCollectionProvider::define(function () {
 	static $collection;
 
-	return $collection ?: $collection = new EventCollection;
-
+	return $collection ??= new EventCollection;
 });
 
-EventCollectionProvider::provide()->attach(function(TemplateResolver\AlterEvent $event, BasicTemplateResolver $target) {
+function get_renderer(): Render\Renderer
+{
+	static $renderer;
 
-	$target->add_path(__DIR__ . '/templates');
+	if ($renderer) {
+		return $renderer;
+	}
 
-});
+	$template_resolver = new BasicTemplateResolver([
+		__DIR__ . '/templates'
+	]);
+
+	$engines = new Render\EngineProvider\Immutable([
+		'.php' => new Render\PHPEngine()
+	]);
+
+	return $renderer = new Render\Renderer($template_resolver, $engines);
+}
 
 #
 # Configuring prototypes
@@ -48,24 +59,18 @@ EventCollectionProvider::provide()->attach(function(TemplateResolver\AlterEvent 
 
 Prototype::bind([
 
-	Controller::class => [
-
+	ControllerAbstract::class => [
 		'get_app' => function () use ($app) {
-
 			return $app;
-
 		},
 
-		'lazy_get_view' => function (Controller $controller) {
-
-			$view = new View($controller, Render\get_renderer());
+		'lazy_get_view' => function (ControllerAbstract $controller) {
+			$view = new View($controller, get_renderer());
 
 			new View\AlterEvent($view);
 
 			return $view;
-
 		}
-
 	]
 
 ]);

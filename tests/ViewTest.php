@@ -9,82 +9,69 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\View;
+namespace Test\ICanBoogie\View;
 
 use Closure;
 use ICanBoogie\EventCollection;
 use ICanBoogie\EventCollectionProvider;
 use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\Render\Renderer;
+use ICanBoogie\Render\RenderOptions;
 use ICanBoogie\Render\TemplateNotFound;
 use ICanBoogie\Routing\Controller;
+use ICanBoogie\Routing\ControllerAbstract;
 use ICanBoogie\Routing\Route;
+use ICanBoogie\View\ControllerBindings;
+use ICanBoogie\View\View;
 use LogicException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
-use function ICanBoogie\Render\get_renderer;
+
 use function random_bytes;
+use function uniqid;
 
 class ViewTest extends TestCase
 {
-	const FIXTURE_CONTENT = "TESTING";
+	private const FIXTURE_CONTENT = "TESTING";
 
 	static private function generate_bytes($length = 2048)
 	{
 		return random_bytes($length);
 	}
 
-	/**
-	 * @var Controller|ControllerBindings
-	 */
-	private $controller;
-
-	/**
-	 * @var Renderer
-	 */
-	private $renderer;
-
-	/**
-	 * @var EventCollection
-	 */
-	private $events;
+	private MockObject|ControllerAbstract $controller;
+	private Renderer $renderer;
+	private EventCollection $events;
 
 	public function setUp(): void
 	{
-		$this->controller = $this
-			->getMockBuilder(Controller::class)
-			->disableOriginalConstructor()
-			->getMockForAbstractClass();
-
+		$this->controller = $this->createMock(ControllerAbstract::class);
 		$this->renderer = get_renderer();
-
 		$this->events = EventCollectionProvider::provide();
 	}
 
-	public function test_get_controller()
+	public function test_get_controller(): void
 	{
-		$controller = $this->controller;
-		$view = new View($controller, $this->renderer);
-		$this->assertSame($controller, $view->controller);
+		$this->assertSame($this->controller, $this->makeSTU()->controller);
 	}
 
-	public function test_get_renderer()
+	public function test_get_renderer(): void
 	{
-		$renderer = $this->renderer;
-		$view = new View($this->controller, $this->renderer);
-		$this->assertSame($renderer, $view->renderer);
+		$this->assertSame($this->renderer, $this->makeSTU()->renderer);
 	}
 
-	public function test_get_variables()
+	public function test_get_variables(): void
 	{
 		$content = self::generate_bytes();
 		$v1 = self::generate_bytes();
 		$v2 = self::generate_bytes();
 
-		$view = new View($this->controller, $this->renderer);
+		$view = $this->makeSTU();
 		$view->content = $content;
 		$view['v1'] = $v1;
 		$view['v2'] = $v2;
@@ -94,13 +81,13 @@ class ViewTest extends TestCase
 		$this->assertEquals([ 'content' => $content, 'v1' => $v1, 'v2' => $v2, 'view' => $view ], $view->variables);
 	}
 
-	public function test_assign()
+	public function test_assign(): void
 	{
-		$content = self::generate_bytes();
-		$v1 = self::generate_bytes();
-		$v2 = self::generate_bytes();
+		$content = uniqid();
+		$v1 = uniqid();
+		$v2 = uniqid();
 
-		$view = new View($this->controller, $this->renderer);
+		$view = $this->makeSTU();
 		$view->assign(compact('content', 'v1', 'v2'));
 
 		$this->assertSame($content, $view->content);
@@ -110,200 +97,120 @@ class ViewTest extends TestCase
 
 	/**
 	 * @dataProvider provide_test_get_template
-	 *
-	 * @param $controller
-	 * @param $expected
 	 */
-	public function test_get_template($controller, $expected)
+	public function test_get_template(ControllerAbstract $controller, ?string $expected)
 	{
 		$view = new View($controller, $this->renderer);
 
 		$this->assertSame($expected, $view->template);
 	}
 
-	public function provide_test_get_template()
+	public function provide_test_get_template(): array
 	{
-		$t1 = 'template' . uniqid();
-
-		$r1 = new Route('/', [ 'template' => $t1 ]);
-
-		$c1 = $this
-			->getMockBuilder(Controller::class)
-			->disableOriginalConstructor()
-			->onlyMethods([ 'get_route' ])
-			->getMockForAbstractClass();
-
-		$c1->expects($this->once())
-			->method('get_route')
-			->willReturn($r1);
+		$cases = [];
 
 		#
 
-		$t2 = 'template' . uniqid();
+		$t = 'template' . uniqid();
 
-		$c2 = $this
-			->getMockBuilder(Controller::class)
+		$c = $this
+			->getMockBuilder(ControllerAbstract::class)
 			->disableOriginalConstructor()
-			->onlyMethods([ 'get_route' ])
 			->getMockForAbstractClass();
 
-		$c2->expects($this->once())
-			->method('get_route')
-			->willThrowException(new PropertyNotDefined('route'));
+		$c->template = $t;
 
-		/* @var $c2 Controller|ControllerBindings */
-
-		$c2->template = $t2;
+		$cases['from template'] = [ $c, $t ];
 
 		#
 
-		$c3_name = uniqid();
-		$c3_action = uniqid();
+		$c_name = uniqid();
+		$c_action = uniqid();
 
-		$t3 = "$c3_name/$c3_action";
+		$t = "$c_name/$c_action";
 
-		$c3 = $this
-			->getMockBuilder(Controller::class)
+		$c = $this
+			->getMockBuilder(ControllerAbstract::class)
 			->disableOriginalConstructor()
-			->onlyMethods([ 'get_route', 'get_name' ])
+			->onlyMethods([ 'get_name' ])
 			->addMethods([ 'get_action' ])
 			->getMockForAbstractClass();
 
-		$c3->expects($this->once())
-			->method('get_route')
-			->willThrowException(new PropertyNotDefined('route'));
-
-		$c3->expects($this->once())
+		$c->expects($this->once())
 			->method('get_name')
-			->willReturn($c3_name);
+			->willReturn($c_name);
 
-		$c3->expects($this->once())
+		$c->expects($this->once())
 			->method('get_action')
-			->willReturn($c3_action);
+			->willReturn($c_action);
+
+		$cases["from name and action"] = [ $c, $t ];
 
 		#
 
-		$t4 = null;
-
-		$c4 = $this
-			->getMockBuilder(Controller::class)
+		$c = $this
+			->getMockBuilder(ControllerAbstract::class)
 			->disableOriginalConstructor()
-			->onlyMethods([ 'get_route' ])
 			->getMockForAbstractClass();
 
-		$c4->expects($this->once())
-			->method('get_route')
-			->willThrowException(new PropertyNotDefined('route'));
+		$cases["no template"] = [ $c, null ];
 
 		#
 
-		return [
-
-			[ $c1, $t1 ],
-			[ $c2, $t2 ],
-			[ $c3, $t3 ],
-			[ $c4, $t4 ]
-
-		];
+		return $cases;
 	}
 
 	/**
 	 * @dataProvider provide_test_get_layout
-	 *
-	 * @param $view
-	 * @param $expected
 	 */
-	public function test_get_layout($view, $expected)
-	{
-		$this->assertSame($expected, $view->layout);
-	}
-
-	public function provide_test_get_layout()
+	public function test_get_layout(ControllerAbstract $controller, ?string $expected): void
 	{
 		$renderer = $this
 			->getMockBuilder(Renderer::class)
 			->disableOriginalConstructor()
 			->getMock();
 
-		#
-		# $controller->route->layout
-		#
+		$view = new View($controller, $renderer);
 
-		$t1 = 'layout' . uniqid();
+		$this->assertSame($expected, $view->layout);
+	}
 
-		$r1 = new Route('/', [ 'layout' => $t1 ]);
+	public function provide_test_get_layout(): array
+	{
+		return [
+			'from controller' => (function () {
+				$t = 'layout' . uniqid();
 
-		$c1 = $this
-			->getMockBuilder(Controller::class)
-			->disableOriginalConstructor()
-			->onlyMethods([ 'get_route' ])
-			->getMockForAbstractClass();
+				$c = $this
+					->getMockBuilder(ControllerAbstract::class)
+					->disableOriginalConstructor()
+					->getMockForAbstractClass();
 
-		$c1->expects($this->once())
-			->method('get_route')
-			->willReturn($r1);
+				$c->layout = $t;
 
-		/* @var $c1 Controller */
+				return [ $c, $t ];
+			})(),
 
-		$v1 = new View($c1, $renderer);
+			'from route action' => (function () {
+				$t = 'admin';
+				$c_route = new Route('/', 'admin:posts/index');
 
-		#
-		# $controller->layout
-		#
+				$c = $this
+					->getMockBuilder(ControllerAbstract::class)
+					->disableOriginalConstructor()
+					->onlyMethods([ 'get_route' ])
+					->getMockForAbstractClass();
 
-		$t2 = 'layout' . uniqid();
+				$c->method('get_route')
+					->willReturn($c_route);
 
-		$c2 = $this
-			->getMockBuilder(Controller::class)
-			->disableOriginalConstructor()
-			->onlyMethods([ 'get_route' ])
-			->getMockForAbstractClass();
+				return [ $c, $t ];
+			}) (),
 
-		$c2->expects($this->once())
-			->method('get_route')
-			->willThrowException(new PropertyNotDefined('route'));
-
-		/* @var $c2 Controller|ControllerBindings */
-
-		$c2->layout = $t2;
-
-		$v2 = new View($c2, $renderer);
-
-		#
-		# $controller->route->id
-		#
-
-		$t3 = 'admin';
-
-		$c3_route = $this
-			->getMockBuilder(Route::class)
-			->disableOriginalConstructor()
-			->onlyMethods([ '__get' ])
-			->getMock();
-		$c3_route->expects($this->any())
-			->method('__get')
-			->willReturnCallback(function($property) {
-
-				if ($property == 'layout') throw new PropertyNotDefined($property);
-				elseif ($property == 'id') return 'admin:posts/index';
-
-                throw new LogicException("Unexpected property: $property");
-
-			});
-
-		$c3 = $this
-			->getMockBuilder(Controller::class)
-			->disableOriginalConstructor()
-			->onlyMethods([ 'get_route' ])
-			->getMockForAbstractClass();
-
-		$c3->expects($this->any())
-			->method('get_route')
-			->willReturn($c3_route);
-
-		/* @var $c3 Controller */
-
-		$v3 = new View($c3, $renderer);
+//			'' => (function() {
+//
+//			}) ().
+		];
 
 		#
 		# 'page'
@@ -316,7 +223,7 @@ class ViewTest extends TestCase
 			[ $v3, $t3 ],
 			$this->provide_test_get_layout_case3(),
 			$this->provide_test_get_layout_case4(),
-            $this->provide_test_get_layout_case5(),
+			$this->provide_test_get_layout_case5(),
 
 		];
 	}
@@ -328,31 +235,10 @@ class ViewTest extends TestCase
 	{
 		$expected = 'home';
 
-		$route = $this
-			->getMockBuilder(Route::class)
-			->disableOriginalConstructor()
-			->onlyMethods([ '__get' ])
-			->getMock();
-		$route->expects($this->any())
-			->method('__get')
-			->willReturnCallback(function($property) {
-
-				switch ($property)
-				{
-					case 'layout':
-						throw new PropertyNotDefined($property);
-					case 'id':
-						return 'posts/index';
-					case 'pattern':
-						return '/';
-                    default:
-                        throw new LogicException("Unexpected property: $property");
-				}
-
-			});
+		$route = new Route('/', 'posts:list');
 
 		$controller = $this
-			->getMockBuilder(Controller::class)
+			->getMockBuilder(ControllerAbstract::class)
 			->disableOriginalConstructor()
 			->onlyMethods([ 'get_route' ])
 			->getMockForAbstractClass();
@@ -366,18 +252,18 @@ class ViewTest extends TestCase
 			->disableOriginalConstructor()
 			->getMock();
 
-		$view = $this->getMockBuilder(View::class)
-			->setConstructorArgs([ $controller, $renderer ])
-			->onlyMethods([ 'resolve_template' ])
-			->getMock();
+//		$view = $this->getMockBuilder(View::class)
+//			->setConstructorArgs([ $controller, $renderer ])
+//			->onlyMethods([ 'resolve_template' ])
+//			->getMock();
+//
+//		$view
+//			->expects($this->once())
+//			->method('resolve_template')
+//			->with('home', View::TEMPLATE_PREFIX_LAYOUT)
+//			->willReturn(true);
 
-		$view
-			->expects($this->once())
-			->method('resolve_template')
-			->with('home', View::TEMPLATE_PREFIX_LAYOUT)
-			->willReturn(true);
 
-		return [ $view, $expected ];
 	}
 
 	/*
@@ -385,31 +271,32 @@ class ViewTest extends TestCase
 	 */
 	private function provide_test_get_layout_case4()
 	{
-		$route = $this
-			->getMockBuilder(Route::class)
-			->disableOriginalConstructor()
-			->onlyMethods([ '__get' ])
-			->getMock();
-		$route->expects($this->any())
-			->method('__get')
-			->willReturnCallback(function($property) {
-
-				switch ($property)
-				{
-					case 'layout':
-						throw new PropertyNotDefined($property);
-					case 'id':
-						return 'posts/index';
-					case 'pattern':
-						return '/';
-                    default:
-                        throw new LogicException("Unexpected property: $property");
-				}
-
-			});
+		$route = new Route('/', 'action', id: 'posts/index');
+//		$route = $this
+//			->getMockBuilder(Route::class)
+//			->disableOriginalConstructor()
+//			->onlyMethods([ '__get' ])
+//			->getMock();
+//		$route->expects($this->any())
+//			->method('__get')
+//			->willReturnCallback(function($property) {
+//
+//				switch ($property)
+//				{
+//					case 'layout':
+//						throw new PropertyNotDefined($property);
+//					case 'id':
+//						return 'posts/index';
+//					case 'pattern':
+//						return '/';
+//                    default:
+//                        throw new LogicException("Unexpected property: $property");
+//				}
+//
+//			});
 
 		$controller = $this
-			->getMockBuilder(Controller::class)
+			->getMockBuilder(ControllerAbstract::class)
 			->disableOriginalConstructor()
 			->onlyMethods([ 'get_route' ])
 			->getMockForAbstractClass();
@@ -431,12 +318,13 @@ class ViewTest extends TestCase
 		$view
 			->expects($this->exactly(2))
 			->method('resolve_template')
-			->willReturnCallback(function($name) {
-
-				if ($name == 'home') return false;
-				elseif ($name == 'page') return true;
-                throw new LogicException("Unexpected name: $name");
-
+			->willReturnCallback(function ($name) {
+				if ($name == 'home') {
+					return false;
+				} elseif ($name == 'page') {
+					return true;
+				}
+				throw new LogicException("Unexpected name: $name");
 			});
 
 		return [ $view, 'page' ];
@@ -447,31 +335,32 @@ class ViewTest extends TestCase
 	 */
 	private function provide_test_get_layout_case5()
 	{
-		$route = $this
-			->getMockBuilder(Route::class)
-			->disableOriginalConstructor()
-			->onlyMethods([ '__get' ])
-			->getMock();
-		$route->expects($this->any())
-			->method('__get')
-			->willReturnCallback(function($property) {
-
-				switch ($property)
-				{
-					case 'layout':
-						throw new PropertyNotDefined($property);
-					case 'id':
-						return 'posts/index';
-					case 'pattern':
-						return '/';
-                    default:
-                        throw new LogicException("Unexpected property: $property");
-				}
-
-			});
+		$route = new Route('/', 'action', id: 'posts/index');
+//		$route = $this
+//			->getMockBuilder(Route::class)
+//			->disableOriginalConstructor()
+//			->onlyMethods([ '__get' ])
+//			->getMock();
+//		$route->expects($this->any())
+//			->method('__get')
+//			->willReturnCallback(function($property) {
+//
+//				switch ($property)
+//				{
+//					case 'layout':
+//						throw new PropertyNotDefined($property);
+//					case 'id':
+//						return 'posts/index';
+//					case 'pattern':
+//						return '/';
+//                    default:
+//                        throw new LogicException("Unexpected property: $property");
+//				}
+//
+//			});
 
 		$controller = $this
-			->getMockBuilder(Controller::class)
+			->getMockBuilder(ControllerAbstract::class)
 			->disableOriginalConstructor()
 			->onlyMethods([ 'get_route' ])
 			->getMockForAbstractClass();
@@ -479,10 +368,10 @@ class ViewTest extends TestCase
 			->method('get_route')
 			->willReturn($route);
 
-        $renderer = $this
-            ->getMockBuilder(Renderer::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+		$renderer = $this
+			->getMockBuilder(Renderer::class)
+			->disableOriginalConstructor()
+			->getMock();
 
 		$view = $this->getMockBuilder(View::class)
 			->setConstructorArgs([ $controller, $renderer ])
@@ -538,13 +427,10 @@ class ViewTest extends TestCase
 
 		/* @var $view View */
 
-		try
-		{
+		try {
 			$view->render();
 			$this->fail("Expected TemplateNotFound");
-		}
-		catch (TemplateNotFound $e)
-		{
+		} catch (TemplateNotFound $e) {
 			$this->assertStringContainsString("no template matching", $e->getMessage());
 			$this->assertStringContainsString($template, $e->getMessage());
 		}
@@ -566,13 +452,10 @@ class ViewTest extends TestCase
 
 		/* @var $view View */
 
-		try
-		{
+		try {
 			$view->render();
 			$this->fail("Expected TemplateNotFound");
-		}
-		catch (TemplateNotFound $e)
-		{
+		} catch (TemplateNotFound $e) {
 			$this->assertStringContainsString($template, $e->getMessage());
 		}
 	}
@@ -615,58 +498,48 @@ EOT;
 	}
 
 	public function test_partial()
-    {
-        $expected = uniqid();
-        $template = uniqid();
-        $locals = [ uniqid() => uniqid() ];
-        $options = [ uniqid() => uniqid() ];
+	{
+		$expected = uniqid();
+		$template = uniqid();
+		$locals = [ uniqid() => uniqid() ];
 
-        $controller = $this
-            ->getMockBuilder(Controller::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+		$controller = $this
+			->getMockBuilder(ControllerAbstract::class)
+			->disableOriginalConstructor()
+			->getMockForAbstractClass();
 
-        $renderer = $this
-            ->getMockBuilder(Renderer::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods([ 'render' ])
-            ->getMock();
-        $renderer
-            ->expects($this->once())
-            ->method('render')
-            ->with([
+		$renderer = $this
+			->getMockBuilder(Renderer::class)
+			->disableOriginalConstructor()
+			->onlyMethods([ 'render' ])
+			->getMock();
+		$renderer
+			->expects($this->once())
+			->method('render')
+			->with(new RenderOptions(partial: $template, locals: $locals))
+			->willReturn($expected);
 
-                Renderer::OPTION_PARTIAL => $template,
-                Renderer::OPTION_LOCALS => $locals
-
-            ], $options)
-            ->willReturn($expected);
-
-        /* @var Controller $controller */
-
-        $view = new View($controller, $renderer);
-        $this->assertSame($expected, $view->partial($template, $locals, $options));
-    }
+		$view = new View($controller, $renderer);
+		$this->assertSame($expected, $view->partial($template, $locals));
+	}
 
 	public function test_view_render()
 	{
 		$request = Request::from("/");
-		$request->context->route = new Route('/', [ 'layout' => null ]);
+		$request->context->add(new Route('/', 'action'));
 
 		$controller = $this
-			->getMockBuilder(Controller::class)
+			->getMockBuilder(ControllerAbstract::class)
 			->onlyMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
 			->expects($this->once())
 			->method('action')
-			->willReturnCallback(function() use ($controller) {
-				/* @var $controller Controller|ControllerBindings */
+			->willReturnCallback(function () use ($controller) {
 				$controller->view->content = ViewTest::FIXTURE_CONTENT;
 			});
 
-		/* @var $controller Controller */
-		$response = $controller($request);
+		$response = $controller->respond($request);
 		$this->assertEquals(self::FIXTURE_CONTENT, $response);
 	}
 
@@ -675,82 +548,82 @@ EOT;
 		$request = Request::from("/");
 
 		$controller = $this
-			->getMockBuilder(Controller::class)
+			->getMockBuilder(ControllerAbstract::class)
 			->onlyMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
 			->expects($this->once())
 			->method('action')
-			->willReturnCallback(function() use ($controller) {
-				/* @var $controller Controller|ControllerBindings */
+			->willReturnCallback(function () use ($controller) {
 				$controller->view->content = ViewTest::FIXTURE_CONTENT;
 			});
 
-		/* @var $controller Controller */
-
 		$request->context->route = new Route('/', []);
 
-		$response = $controller($request);
-		$this->assertEquals(<<<EOT
+		$response = $controller->respond($request);
+		$this->assertEquals(
+			<<<EOT
 <default>TESTING</default>
 
 EOT
-		, $response);
+			,
+			$response
+		);
 	}
 
 	public function test_view_render_with_custom_layout()
 	{
 		$request = Request::from("/");
-		$request->context->route = new Route('/', [ 'layout' => 'custom' ]);
+//		$request->context->add(new Route('/', [ 'layout' => 'custom' ]));
+		$request->context->add(new Route('/', 'action'));
 
 		$controller = $this
-			->getMockBuilder(Controller::class)
+			->getMockBuilder(ControllerAbstract::class)
 			->onlyMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
 			->expects($this->once())
 			->method('action')
-			->willReturnCallback(Closure::bind(function() {
+			->willReturnCallback(
+				Closure::bind(function () {
+					$this->view->content = ViewTest::FIXTURE_CONTENT;
+				}, $controller)
+			);
 
-				/* @var $this Controller|ControllerBindings */
-				$this->view->content = ViewTest::FIXTURE_CONTENT;
-
-			}, $controller));
-
-		/* @var $controller Controller */
-		$response = $controller($request);
-		$this->assertEquals(<<<EOT
+		$response = $controller->respond($request);
+		$this->assertEquals(
+			<<<EOT
 <custom>TESTING</custom>
 
 EOT
-		, $response);
+			,
+			$response
+		);
 	}
 
 	public function test_controller_with_json_response()
 	{
 		$request = Request::from("/");
-		$request->context->route = new Route('/', [ ]);
+		$request->context->add(new Route('/', 'action'));
 
 		$controller = $this
-			->getMockBuilder(Controller::class)
+			->getMockBuilder(ControllerAbstract::class)
 			->onlyMethods([ 'action' ])
 			->getMockForAbstractClass();
 		$controller
 			->expects($this->once())
 			->method('action')
-			->willReturnCallback(Closure::bind(function() {
+			->willReturnCallback(
+				Closure::bind(function () {
+					$this->view->content = [ 1 => "one", 2 => "two" ];
+					$this->view->template = "json";
+					$this->view->layout = null;
 
-				/* @var $this Controller|ControllerBindings */
-				$this->view->content = [ 1 => "one", 2 => "two" ];
-				$this->view->template = "json";
-				$this->view->layout = null;
+					$this->response->content_type = "application/json";
+				}, $controller)
+			);
 
-				$this->response->content_type = "application/json";
-
-			}, $controller));
-
-		/* @var $controller Controller */
-		$response = $controller($request);
+		$response = $controller->respond($request);
 
 		$this->assertInstanceOf(Response::class, $response);
 		$this->assertEquals("application/json", $response->content_type);
@@ -792,10 +665,8 @@ EOT
 		$controller = $this->controller;
 		$view = new View($controller, $this->renderer);
 
-		$this->events->attach_to($view, function(View\BeforeRenderEvent $event, View $target) use ($expected_result) {
-
+		$this->events->attach_to($view, function (View\BeforeRenderEvent $event, View $target) use ($expected_result) {
 			$event->result = $expected_result;
-
 		});
 
 		$result = null;
@@ -834,5 +705,10 @@ EOT
 		$this->assertEquals($var, $array['variables']['var']);
 		$this->assertArrayHasKey('this', $array['variables']);
 		$this->assertEquals($that, $array['variables']['this']);
+	}
+
+	private function makeSTU(): View
+	{
+		return new View($this->controller, $this->renderer);
 	}
 }

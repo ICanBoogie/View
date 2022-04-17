@@ -9,24 +9,26 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\View;
+namespace Test\ICanBoogie\View;
 
+use ICanBoogie\HTTP\Request;
 use ICanBoogie\PropertyNotDefined;
-use ICanBoogie\View\ControllerBindingsTest\BoundController;
-use ICanBoogie\View\ControllerBindingsTest\BoundControllerWithLayout;
-use ICanBoogie\View\ControllerBindingsTest\BoundControllerWithTemplate;
+use ICanBoogie\View\View;
 use PHPUnit\Framework\TestCase;
+use Test\ICanBoogie\View\ControllerBindingsTest\BoundController;
+use Test\ICanBoogie\View\ControllerBindingsTest\BoundControllerWithLayout;
+use Test\ICanBoogie\View\ControllerBindingsTest\BoundControllerWithTemplate;
 
 class ControllerBindingsTest extends TestCase
 {
 	public function test_view()
 	{
-		$controller = $this
-			->getMockBuilder(BoundController::class)
-			->disableOriginalConstructor()
-			->getMockForAbstractClass();
-
-		/* @var $controller BoundController */
+		$controller = new class () extends BoundController {
+			protected function action(Request $request): mixed
+			{
+				return "MADONNA";
+			}
+		};
 
 		$view = $controller->view;
 
