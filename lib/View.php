@@ -18,15 +18,15 @@ use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\Render\Renderer;
 use ICanBoogie\Render\RenderOptions;
-use ICanBoogie\Render\TemplateName;
-use ICanBoogie\Render\TemplateNotFound;
 use ICanBoogie\Routing\Controller;
 use ICanBoogie\Routing\ControllerAbstract;
+use ICanBoogie\Routing\Route;
 use JsonSerializable;
 
 use function array_key_exists;
 use function array_merge;
 use function array_reverse;
+use function strtr;
 
 /**
  * A view.
@@ -35,8 +35,6 @@ use function array_reverse;
  * @property mixed $content The content of the view.
  * @property string $layout The name of the layout that should decorate the content.
  * @property string $template The name of the template that should render the content.
- * @property-read callable[] $layout_resolvers @internal
- * @property-read callable[] $template_resolvers @internal
  */
 class View implements ArrayAccess, JsonSerializable
 {
@@ -45,19 +43,11 @@ class View implements ArrayAccess, JsonSerializable
 	 * @uses get_content
 	 * @uses set_content
 	 * @uses lazy_get_template
-	 * @uses get_template_resolvers
 	 * @uses lazy_get_layout
-	 * @uses get_layout_resolvers
 	 */
 	use AccessorTrait;
 
-	public const TEMPLATE_TYPE_VIEW = 1;
-	public const TEMPLATE_TYPE_LAYOUT = 2;
-	public const TEMPLATE_TYPE_PARTIAL = 3;
-
-	public const TEMPLATE_PREFIX_VIEW = '';
-	public const TEMPLATE_PREFIX_LAYOUT = '@';
-	public const TEMPLATE_PREFIX_PARTIAL = '_';
+	private readonly LayoutResolver\Basic $layout_resolver;
 
 	/**
 	 * View's variables.
@@ -105,7 +95,7 @@ class View implements ArrayAccess, JsonSerializable
 	{
 		$controller = $this->controller;
 
-		foreach ($this->template_resolvers as $provider) {
+		foreach ($this->template_resolvers() as $provider) {
 			try {
 				return $provider($controller);
 			} catch (PropertyNotDefined) {
@@ -125,17 +115,16 @@ class View implements ArrayAccess, JsonSerializable
 	 *
 	 * @internal
 	 */
-	private function get_template_resolvers(): array
+	private function template_resolvers(): array
 	{
 		return [
 
+			// ROUTES ALWAYS HAVE AN ACTION
 			function ($controller) {
-				return $controller->template;
-			},
+				$route = $controller->route;
 
-			function ($controller) {
-				return $controller->name . "/" . $controller->action;
-			}
+				return strtr($route->action, Route::ACTION_SEPARATOR, '/');
+			},
 
 		];
 	}
@@ -154,53 +143,7 @@ class View implements ArrayAccess, JsonSerializable
 	 */
 	protected function lazy_get_layout(): ?string
 	{
-		$responder = $this->controller;
-
-		foreach ($this->layout_resolvers as $resolver) {
-			try {
-				return $resolver($responder);
-			} catch (PropertyNotDefined $e) {
-				#
-				# Resolver failed, we continue with the next.
-				#
-			}
-		}
-
-		if (str_starts_with($responder->route->action, "admin:")) {
-			return 'admin';
-		}
-
-		if ($responder->route->pattern === "/" && $this->resolve_template('home', self::TEMPLATE_PREFIX_LAYOUT)) {
-			return 'home';
-		}
-
-		if ($this->resolve_template('page', self::TEMPLATE_PREFIX_LAYOUT)) {
-			return 'page';
-		}
-
-		return 'default';
-	}
-
-	/**
-	 * Returns an array of callable used to resolve the {@link $template} property.
-	 *
-	 * @return callable[]
-	 *
-	 * @internal
-	 */
-	protected function get_layout_resolvers(): array
-	{
-		return [
-
-//			function ($controller) {
-//				return $controller->route->layout;
-//			},
-
-			function ($controller) {
-				return $controller->layout;
-			}
-
-		];
+		return $this->layout_resolver->resolve_layout($this);
 	}
 
 	/**
@@ -210,7 +153,10 @@ class View implements ArrayAccess, JsonSerializable
 	public function __construct(
 		public readonly ControllerAbstract $controller,
 		public readonly Renderer $renderer,
+		LayoutResolver $layout_resolver = null,
 	) {
+		$this->layout_resolver = $layout_resolver ?? new LayoutResolver\Basic($renderer);
+
 		$this['view'] = $this;
 
 		EventCollectionProvider::provide()->attach_to(
@@ -290,28 +236,6 @@ class View implements ArrayAccess, JsonSerializable
 	}
 
 	/**
-	 * Resolve a template pathname from its name and type.
-	 *
-	 * @param string $name Name of the template.
-	 * @param string $prefix Template prefix.
-	 * @param string[] $tried Reference to an array where tried paths are collected.
-	 */
-	protected function resolve_template(string $name, string $prefix, array &$tried = []): string|null
-	{
-		if ($prefix) {
-			$name = TemplateName::from($name)->with_prefix($prefix);
-		}
-
-		try {
-			return $this->renderer->resolve_template($name);
-		} catch (TemplateNotFound $e) {
-			$tried = $e->tried;
-
-			return null;
-		}
-	}
-
-	/**
 	 * Add a template to decorate the content with.
 	 */
 	public function decorate_with(string $template): void
@@ -339,11 +263,11 @@ class View implements ArrayAccess, JsonSerializable
 	/**
 	 * Render the content with a simple partial template.
 	 */
-	public function partial(string $template): string
+	public function partial(mixed $content, string $template, array $locals = []): string
 	{
 		return $this->renderer->render(
-			$this->content,
-			new RenderOptions(partial: $template, locals: $this->variables)
+			$content,
+			new RenderOptions(partial: $template, locals: $locals)
 		);
 	}
 
