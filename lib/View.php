@@ -14,6 +14,7 @@ namespace ICanBoogie\View;
 use ArrayAccess;
 use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\EventCollectionProvider;
+use ICanBoogie\HTTP\Responder;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\Render\Renderer;
@@ -21,6 +22,7 @@ use ICanBoogie\Render\TemplateName;
 use ICanBoogie\Render\TemplateNotFound;
 use ICanBoogie\Routing\Controller;
 use JsonSerializable;
+
 use function array_key_exists;
 use function array_merge;
 use function array_reverse;
@@ -28,8 +30,8 @@ use function array_reverse;
 /**
  * A view.
  *
- * @property-read Controller $controller The controller invoking the view.
- * @property-read Renderer $renderer The controller invoking the view.
+ * @property-read Responder $responder The responder invoking the view.
+ * @property-read Renderer $renderer
  * @property-read array $variables The variables to pass to the template.
  * @property mixed $content The content of the view.
  * @property string $layout The name of the layout that should decorate the content.
@@ -40,7 +42,7 @@ use function array_reverse;
 class View implements ArrayAccess, JsonSerializable
 {
 	/**
-	 * @uses get_controller
+	 * @uses get_responder
 	 * @uses get_renderer
 	 * @uses get_variables
 	 * @uses get_content
@@ -60,20 +62,14 @@ class View implements ArrayAccess, JsonSerializable
 	public const TEMPLATE_PREFIX_LAYOUT = '@';
 	public const TEMPLATE_PREFIX_PARTIAL = '_';
 
-	/**
-	 * @var Controller
-	 */
-	private $controller;
+	private Responder $responder;
 
-	protected function get_controller(): Controller
+	protected function get_responder(): Responder
 	{
-		return $this->controller;
+		return $this->responder;
 	}
 
-	/**
-	 * @var Renderer
-	 */
-	private $renderer;
+	private Renderer $renderer;
 
 	protected function get_renderer(): Renderer
 	{
@@ -83,10 +79,13 @@ class View implements ArrayAccess, JsonSerializable
 	/**
 	 * View's variables.
 	 *
-	 * @var array
+	 * @var array<string, mixed>
 	 */
-	private $variables = [];
+	private array $variables = [];
 
+	/**
+	 * @return array<string, mixed>
+	 */
 	protected function get_variables(): array
 	{
 		return $this->variables;
@@ -94,25 +93,24 @@ class View implements ArrayAccess, JsonSerializable
 
 	/**
 	 * @see $content
-	 *
-	 * @return mixed
 	 */
-	protected function get_content()
+	protected function get_content(): mixed
 	{
-		return isset($this->variables['content']) ? $this->variables['content'] : null;
+		return $this->variables['content'] ?? null;
 	}
 
 	/**
 	 * @see $content
-	 *
-	 * @param mixed $content
 	 */
-	protected function set_content($content)
+	protected function set_content(mixed $content): void
 	{
 		$this->variables['content'] = $content;
 	}
 
-	private $decorators = [];
+	/**
+	 * @var array
+	 */
+	private array $decorators = [];
 
 	/**
 	 * Return the name of the template.
@@ -126,21 +124,16 @@ class View implements ArrayAccess, JsonSerializable
 	 */
 	protected function lazy_get_template(): ?string
 	{
-		$controller = $this->controller;
+		$controller = $this->responder;
 
-		foreach ($this->template_resolvers as $provider)
-		{
-			try
-			{
+		foreach ($this->template_resolvers as $provider) {
+			try {
 				return $provider($controller);
-			}
-			catch (PropertyNotDefined $e)
-			{
+			} catch (PropertyNotDefined $e) {
 				#
 				# Resolver failed, we continue with the next.
 				#
 			}
-
 		}
 
 		return null;
@@ -158,21 +151,15 @@ class View implements ArrayAccess, JsonSerializable
 		return [
 
 			function ($controller) {
-
 				return $controller->route->template;
-
 			},
 
 			function ($controller) {
-
 				return $controller->template;
-
 			},
 
 			function ($controller) {
-
 				return $controller->name . "/" . $controller->action;
-
 			}
 
 		];
@@ -192,34 +179,27 @@ class View implements ArrayAccess, JsonSerializable
 	 */
 	protected function lazy_get_layout(): ?string
 	{
-		$controller = $this->controller;
+		$responder = $this->responder;
 
-		foreach ($this->layout_resolvers as $resolver)
-		{
-			try
-			{
-				return $resolver($controller);
-			}
-			catch (PropertyNotDefined $e)
-			{
+		foreach ($this->layout_resolvers as $resolver) {
+			try {
+				return $resolver($responder);
+			} catch (PropertyNotDefined $e) {
 				#
 				# Resolver failed, we continue with the next.
 				#
 			}
 		}
 
-		if (strpos($controller->route->id, "admin:") === 0)
-		{
+		if (str_starts_with($responder->route->id, "admin:")) {
 			return 'admin';
 		}
 
-		if ($controller->route->pattern === "/" && $this->resolve_template('home', self::TEMPLATE_PREFIX_LAYOUT))
-		{
+		if ($responder->route->pattern === "/" && $this->resolve_template('home', self::TEMPLATE_PREFIX_LAYOUT)) {
 			return 'home';
 		}
 
-		if ($this->resolve_template('page', self::TEMPLATE_PREFIX_LAYOUT))
-		{
+		if ($this->resolve_template('page', self::TEMPLATE_PREFIX_LAYOUT)) {
 			return 'page';
 		}
 
@@ -238,15 +218,11 @@ class View implements ArrayAccess, JsonSerializable
 		return [
 
 			function ($controller) {
-
 				return $controller->route->layout;
-
 			},
 
 			function ($controller) {
-
 				return $controller->layout;
-
 			}
 
 		];
@@ -256,25 +232,28 @@ class View implements ArrayAccess, JsonSerializable
 	 * An event hook is attached to the `action` event of the controller for late rendering,
 	 * which only happens if the response is `null`.
 	 */
-	public function __construct(Controller $controller, Renderer $renderer)
+	public function __construct(Responder $responder, Renderer $renderer)
 	{
-		$this->controller = $controller;
+		$this->responder = $responder;
 		$this->renderer = $renderer;
 		$this['view'] = $this;
 
-		EventCollectionProvider::provide()->attach_to($controller, function (Controller\ActionEvent $event, Controller $target) {
-
-			$this->on_action($event);
-
-		});
+		EventCollectionProvider::provide()->attach_to(
+			$responder,
+			function (Controller\ActionEvent $event, Responder $target) {
+				$this->on_action($event);
+			}
+		);
 	}
 
 	/**
 	 * @inheritdoc
 	 *
 	 * Returns an array with the following keys: `template`, `layout`, and `variables`.
+	 *
+	 * @return array{ 'template': string, 'layout': string, 'variables': array }
 	 */
-	public function jsonSerialize()
+	public function jsonSerialize(): array
 	{
 		return [
 
@@ -300,9 +279,8 @@ class View implements ArrayAccess, JsonSerializable
 	 */
 	public function offsetGet($offset)
 	{
-		if (!$this->offsetExists($offset))
-		{
-			throw new OffsetNotDefined([ $offset, $this ]);
+		if (!$this->offsetExists($offset)) {
+			throw new OffsetNotDefined([$offset, $this]);
 		}
 
 		return $this->variables[$offset];
@@ -341,23 +319,17 @@ class View implements ArrayAccess, JsonSerializable
 	 *
 	 * @param string $name Name of the template.
 	 * @param string $prefix Template prefix.
-	 * @param array $tried Reference to an array where tried paths are collected.
-	 *
-	 * @return string|false
+	 * @param string[] $tried Reference to an array where tried paths are collected.
 	 */
-	protected function resolve_template(string $name, string $prefix, array &$tried = [])
+	protected function resolve_template(string $name, string $prefix, array &$tried = []): string|null
 	{
-		if ($prefix)
-		{
+		if ($prefix) {
 			$name = TemplateName::from($name)->with_prefix($prefix);
 		}
 
-		try
-		{
+		try {
 			return $this->renderer->resolve_template($name);
-		}
-		catch (TemplateNotFound $e)
-		{
+		} catch (TemplateNotFound $e) {
 			$tried = $e->tried;
 
 			return null;
@@ -374,15 +346,12 @@ class View implements ArrayAccess, JsonSerializable
 
 	/**
 	 * Decorate the content.
-	 *
-	 * @param mixed $content The content to decorate.
 	 */
-	protected function decorate($content): string
+	protected function decorate(mixed $content): string
 	{
 		$decorators = array_reverse($this->decorators);
 
-		foreach ($decorators as $template)
-		{
+		foreach ($decorators as $template) {
 			$content = $this->renderer->render([
 
 				Renderer::OPTION_CONTENT => $content,
@@ -396,14 +365,16 @@ class View implements ArrayAccess, JsonSerializable
 
 	public function render(): string
 	{
-		return $this->decorate($this->renderer->render([
+		return $this->decorate(
+			$this->renderer->render([
 
-			Renderer::OPTION_CONTENT => $this->content,
-			Renderer::OPTION_TEMPLATE => $this->template,
-			Renderer::OPTION_LAYOUT => $this->layout,
-			Renderer::OPTION_LOCALS => $this->variables
+				Renderer::OPTION_CONTENT => $this->content,
+				Renderer::OPTION_TEMPLATE => $this->template,
+				Renderer::OPTION_LAYOUT => $this->layout,
+				Renderer::OPTION_LOCALS => $this->variables
 
-		]));
+			])
+		);
 	}
 
 	/**
@@ -429,15 +400,13 @@ class View implements ArrayAccess, JsonSerializable
 	 */
 	protected function on_action(Controller\ActionEvent $event): void
 	{
-		if ($event->result !== null)
-		{
+		if ($event->result !== null) {
 			return;
 		}
 
 		new View\BeforeRenderEvent($this, $event->result);
 
-		if ($event->result !== null)
-		{
+		if ($event->result !== null) {
 			return;
 		}
 
@@ -449,10 +418,8 @@ class View implements ArrayAccess, JsonSerializable
 	 */
 	private function ensure_without_this(array $array): array
 	{
-		foreach ($array as $key => $value)
-		{
-			if ($value === $this)
-			{
+		foreach ($array as $key => $value) {
+			if ($value === $this) {
 				unset($array[$key]);
 			}
 		}
