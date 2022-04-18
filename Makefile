@@ -35,20 +35,5 @@ test-coveralls: test-dependencies
 
 .PHONY: test-container
 test-container:
-	@-docker-compose -f ./docker-compose.yml run --rm app bash
-	@docker-compose -f ./docker-compose.yml down -v
-
-.PHONY: doc
-doc: vendor
-	@mkdir -p build/docs
-	@apigen generate \
-	--source lib \
-	--destination build/docs/ \
-	--title "$(PACKAGE_NAME)" \
-	--template-theme "bootstrap"
-
-.PHONY: clean
-clean:
-	@rm -fR build
-	@rm -fR vendor
-	@rm -f composer.lock
+	@-docker-compose run --rm app bash
+	@docker-compose down -v

@@ -20,6 +20,8 @@ use ICanBoogie\Render\BasicTemplateResolver;
 use ICanBoogie\Routing\ControllerAbstract;
 use ICanBoogie\View\View;
 
+use function ICanBoogie\emit;
+
 require __DIR__ . '/../vendor/autoload.php';
 
 #
@@ -67,7 +69,7 @@ Prototype::bind([
 		'lazy_get_view' => function (ControllerAbstract $controller) {
 			$view = new View($controller, get_renderer());
 
-			new View\AlterEvent($view);
+			emit(new View\AlterEvent($view));
 
 			return $view;
 		}

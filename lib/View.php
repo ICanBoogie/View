@@ -26,6 +26,7 @@ use JsonSerializable;
 use function array_key_exists;
 use function array_merge;
 use function array_reverse;
+use function ICanBoogie\emit;
 use function strtr;
 
 /**
@@ -299,7 +300,7 @@ class View implements ArrayAccess, JsonSerializable
 			return;
 		}
 
-		new View\BeforeRenderEvent($this, $event->result);
+		emit(new View\BeforeRenderEvent($this, $event->result));
 
 		if ($event->result !== null) {
 			return;
