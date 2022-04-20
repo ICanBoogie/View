@@ -15,16 +15,12 @@ use ICanBoogie\Event;
 use ICanBoogie\View\View;
 
 /**
- * Event class for the `ICanBoogie\View\View::alter` event.
- *
- * Event hooks may use this event to alter the engine collection.
+ * Listener may use this event to alter the engine collection.
  */
 final class AlterEvent extends Event
 {
-	public const TYPE = 'alter';
-
 	public function __construct(View $target)
 	{
-		parent::__construct($target, self::TYPE);
+		parent::__construct($target);
 	}
 }
