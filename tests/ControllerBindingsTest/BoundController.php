@@ -14,7 +14,8 @@ namespace Test\ICanBoogie\View\ControllerBindingsTest;
 use ICanBoogie\Routing\ControllerAbstract;
 use ICanBoogie\View\ControllerBindings as ViewBindings;
 
+#[\AllowDynamicProperties]
 abstract class BoundController extends ControllerAbstract
 {
-	use ViewBindings;
+    use ViewBindings;
 }

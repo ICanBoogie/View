@@ -12,9 +12,7 @@ usage:
 vendor:
 	@composer install
 
-.PHONY: update
-update:
-	@composer update
+# testing
 
 .PHONY: test-dependencies
 test-dependencies: vendor
@@ -26,14 +24,27 @@ test: test-dependencies
 .PHONY: test-coverage
 test-coverage: test-dependencies
 	@mkdir -p build/coverage
-	@$(PHPUNIT) --coverage-html build/coverage
+	@XDEBUG_MODE=coverage $(PHPUNIT) --coverage-html build/coverage
 
 .PHONY: test-coveralls
 test-coveralls: test-dependencies
 	@mkdir -p build/logs
-	@$(PHPUNIT) --coverage-clover build/logs/clover.xml
+	@XDEBUG_MODE=coverage $(PHPUNIT) --coverage-clover build/logs/clover.xml
 
 .PHONY: test-container
-test-container:
-	@-docker-compose run --rm app bash
+test-container: test-container-81
+
+.PHONY: test-container-81
+test-container-81:
+	@-docker-compose run --rm app81 bash
 	@docker-compose down -v
+
+.PHONY: test-container-82
+test-container-82:
+	@-docker-compose run --rm app82 bash
+	@docker-compose down -v
+
+.PHONY: lint
+lint:
+	@XDEBUG_MODE=off phpcs -s
+	@XDEBUG_MODE=off vendor/bin/phpstan

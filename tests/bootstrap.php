@@ -31,28 +31,28 @@ require __DIR__ . '/../vendor/autoload.php';
 $app = new Prototyped();
 
 EventCollectionProvider::define(function () {
-	static $collection;
+    static $collection;
 
-	return $collection ??= new EventCollection;
+    return $collection ??= new EventCollection();
 });
 
 function get_renderer(): Render\Renderer
 {
-	static $renderer;
+    static $renderer;
 
-	if ($renderer) {
-		return $renderer;
-	}
+    if ($renderer) {
+        return $renderer;
+    }
 
-	$template_resolver = new BasicTemplateResolver([
-		__DIR__ . '/templates'
-	]);
+    $template_resolver = new BasicTemplateResolver([
+        __DIR__ . '/templates'
+    ]);
 
-	$engines = new Render\EngineProvider\Immutable([
-		'.php' => new Render\PHPEngine()
-	]);
+    $engines = new Render\EngineProvider\Immutable([
+        '.php' => new Render\PHPEngine()
+    ]);
 
-	return $renderer = new Render\Renderer($template_resolver, $engines);
+    return $renderer = new Render\Renderer($template_resolver, $engines);
 }
 
 #
@@ -61,18 +61,18 @@ function get_renderer(): Render\Renderer
 
 Prototype::bind([
 
-	ControllerAbstract::class => [
-		'get_app' => function () use ($app) {
-			return $app;
-		},
+    ControllerAbstract::class => [
+        'get_app' => function () use ($app) {
+            return $app;
+        },
 
-		'lazy_get_view' => function (ControllerAbstract $controller) {
-			$view = new View($controller, get_renderer());
+        'lazy_get_view' => function (ControllerAbstract $controller) {
+            $view = new View($controller, get_renderer());
 
-			emit(new View\AlterEvent($view));
+            emit(new View\AlterEvent($view));
 
-			return $view;
-		}
-	]
+            return $view;
+        }
+    ]
 
 ]);

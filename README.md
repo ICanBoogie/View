@@ -1,10 +1,9 @@
 # View
 
 [![Release](https://img.shields.io/packagist/v/icanboogie/view.svg)](https://packagist.org/packages/icanboogie/view)
-[![Build Status](https://img.shields.io/github/workflow/status/ICanBoogie/View/test)](https://github.com/ICanBoogie/View/actions?query=workflow%3Atest)
 [![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/View/master.svg)](https://scrutinizer-ci.com/g/ICanBoogie/View)
 [![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/View/master.svg)](https://coveralls.io/r/ICanBoogie/View)
-[![Packagist](https://img.shields.io/packagist/dt/icanboogie/view.svg)](https://packagist.org/packages/icanboogie/view)
+[![Downloads](https://img.shields.io/packagist/dt/icanboogie/view.svg)](https://packagist.org/packages/icanboogie/view)
 
 The **icanboogie/view** package provides the _view_ part of the model-view-controller (MVC)
 architectural pattern. It extends the features of the [icanboogie/routing][] package—more precisely its
@@ -12,6 +11,12 @@ controllers—and together with the [icanboogie/render][] package it helps in se
 presentation from logic.
 
 
+
+#### Installation
+
+```bash
+composer require icanboogie/<name>
+```
 
 
 
@@ -394,43 +399,32 @@ view is rendered. Event hooks may use this event to provide a cached result.
 
 
 
+## Continuous Integration
 
+The project is continuously tested by [GitHub actions](https://github.com/ICanBoogie/View/actions).
 
-## Installation
-
-```bash
-$ composer require icanboogie/view
-```
-
-
-
-
-
-## Documentation
-
-The package is documented as part of the [ICanBoogie][] framework
-[documentation][]. You can generate the documentation for the package and its dependencies with
-the `make doc` command. The documentation is generated in the `build/docs` directory.
-[ApiGen](http://apigen.org/) is required. The directory can later be cleaned with the
-`make clean` command.
+[![Tests](https://github.com/ICanBoogie/View/workflows/test/badge.svg?branch=master)](https://github.com/ICanBoogie/View/actions?query=workflow%3Atest)
+[![Static Analysis](https://github.com/ICanBoogie/View/workflows/static-analysis/badge.svg?branch=master)](https://github.com/ICanBoogie/View/actions?query=workflow%3Astatic-analysis)
+[![Code Style](https://github.com/ICanBoogie/View/workflows/code-style/badge.svg?branch=master)](https://github.com/ICanBoogie/View/actions?query=workflow%3Acode-style)
 
 
 
+## Code of Conduct
+
+This project adheres to a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in
+this project and its community, you are expected to uphold this code.
 
 
-## Testing
 
-Run `make test-container` to create and log into the test container, then run `make test` to run the
-test suite. Alternatively, run `make test-coverage` to run the test suite with test coverage. Open
-`build/coverage/index.html` to see the breakdown of the code coverage.
+## Contributing
 
-
+Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 
 
 ## License
 
-**icanboogie/view** is released under the [New BSD License](LICENSE).
+**icanboogie/view** is released under the [BSD-3-Clause](LICENSE).
 
 
 

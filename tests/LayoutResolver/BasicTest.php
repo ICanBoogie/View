@@ -24,102 +24,102 @@ use PHPUnit\Framework\TestCase;
 
 class BasicTest extends TestCase
 {
-	private MockObject|ControllerAbstract $controller;
-	private MockObject|Renderer $renderer;
+    private MockObject|ControllerAbstract $controller;
+    private MockObject|Renderer $renderer;
 
-	protected function setUp(): void
-	{
-		parent::setUp();
-
-		$this->controller = new class() extends ControllerAbstract {
-			public ?string $layout = null;
-			public ?Route $route = null;
-
-			protected function action(Request $request): mixed
-			{
-				throw new LogicException("should not be called");
-			}
-		};
-
-		$this->renderer = $this->createMock(Renderer::class);
-	}
-
-	/**
-	 * @dataProvider provide_resolve_layout
-	 */
-	public function test_resolve_layout(Closure $case, string $expected): void
+    protected function setUp(): void
     {
-		$case->call($this);
+        parent::setUp();
 
-		$actual = $this->makeSTU()->resolve_layout($this->makeView());
+        $this->controller = new class () extends ControllerAbstract {
+            public ?string $layout = null;
+            public ?Route $route = null;
 
-		$this->assertEquals($expected, $actual);
+            protected function action(Request $request): mixed
+            {
+                throw new LogicException("should not be called");
+            }
+        };
+
+        $this->renderer = $this->createMock(Renderer::class);
     }
 
-	public function provide_resolve_layout(): array
-	{
-		return [
+    /**
+     * @dataProvider provide_resolve_layout
+     */
+    public function test_resolve_layout(Closure $case, string $expected): void
+    {
+        $case->call($this);
 
-			"default" => [
-				function () {
-					$this->controller->route = new Route('/madonna', 'madonna');
-				},
-				LayoutResolver::DEFAULT_LAYOUT
-			],
+        $actual = $this->makeSTU()->resolve_layout($this->makeView());
 
-			"page" => [
-				function () {
-					$this->controller->route = new Route('/madonna', 'madonna');
-					$this->renderer
-						->method('resolve_template')
-						->with('@page')
-						->willReturn("whatever");
-				},
-				LayoutResolver::PAGE_LAYOUT
-			],
+        $this->assertEquals($expected, $actual);
+    }
 
-			"home" => [
-				function () {
-					$this->controller->route = new Route('/', 'madonna');
-					$this->renderer
-						->method('resolve_template')
-						->with('@home')
-						->willReturn("whatever");
-				},
-				LayoutResolver::HOME_LAYOUT
-			],
+    public function provide_resolve_layout(): array
+    {
+        return [
 
-			"admin" => [
-				function () {
-					$this->controller->route = new Route('/', 'admin:madonna');
-				},
-				LayoutResolver::ADMIN_LAYOUT
-			],
+            "default" => [
+                function () {
+                    $this->controller->route = new Route('/madonna', 'madonna');
+                },
+                LayoutResolver::DEFAULT_LAYOUT
+            ],
 
-			"from the controller" => [
-				function () {
-					$this->controller->layout = "my-layout";
-				},
-				"my-layout"
-			],
+            "page" => [
+                function () {
+                    $this->controller->route = new Route('/madonna', 'madonna');
+                    $this->renderer
+                        ->method('resolve_template')
+                        ->with('@page')
+                        ->willReturn("whatever");
+                },
+                LayoutResolver::PAGE_LAYOUT
+            ],
 
-			"from route action prefix" => [
-				function () {
-					$this->controller->route = new Route('/admin/articles', 'admin:articles:list');
-				},
-				"admin"
-			]
+            "home" => [
+                function () {
+                    $this->controller->route = new Route('/', 'madonna');
+                    $this->renderer
+                        ->method('resolve_template')
+                        ->with('@home')
+                        ->willReturn("whatever");
+                },
+                LayoutResolver::HOME_LAYOUT
+            ],
 
-		];
-	}
+            "admin" => [
+                function () {
+                    $this->controller->route = new Route('/', 'admin:madonna');
+                },
+                LayoutResolver::ADMIN_LAYOUT
+            ],
 
-	private function makeView(): View
-	{
-		return new View($this->controller, $this->renderer);
-	}
+            "from the controller" => [
+                function () {
+                    $this->controller->layout = "my-layout";
+                },
+                "my-layout"
+            ],
 
-	private function makeSTU(): LayoutResolver
-	{
-		return new LayoutResolver\Basic($this->renderer);
-	}
+            "from route action prefix" => [
+                function () {
+                    $this->controller->route = new Route('/admin/articles', 'admin:articles:list');
+                },
+                "admin"
+            ]
+
+        ];
+    }
+
+    private function makeView(): View
+    {
+        return new View($this->controller, $this->renderer);
+    }
+
+    private function makeSTU(): LayoutResolver
+    {
+        return new LayoutResolver\Basic($this->renderer);
+    }
 }

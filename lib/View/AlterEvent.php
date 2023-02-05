@@ -19,8 +19,8 @@ use ICanBoogie\View\View;
  */
 final class AlterEvent extends Event
 {
-	public function __construct(View $target)
-	{
-		parent::__construct($target);
-	}
+    public function __construct(View $target)
+    {
+        parent::__construct($target);
+    }
 }

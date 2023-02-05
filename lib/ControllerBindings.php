@@ -20,5 +20,4 @@ namespace ICanBoogie\View;
  */
 trait ControllerBindings
 {
-
 }

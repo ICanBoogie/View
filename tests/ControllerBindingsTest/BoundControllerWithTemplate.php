@@ -16,10 +16,10 @@ use ICanBoogie\View\ControllerBindings as ViewBindings;
 
 abstract class BoundControllerWithTemplate extends ControllerAbstract
 {
-	use ViewBindings;
+    use ViewBindings;
 
-	protected function get_template()
-	{
-		return 'my-template';
-	}
+    protected function get_template(): string
+    {
+        return 'my-template';
+    }
 }

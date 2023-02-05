@@ -16,10 +16,10 @@ use ICanBoogie\View\ControllerBindings as ViewBindings;
 
 abstract class BoundControllerWithLayout extends ControllerAbstract
 {
-	use ViewBindings;
+    use ViewBindings;
 
-	protected function get_layout()
-	{
-		return 'my-layout';
-	}
+    protected function get_layout(): string
+    {
+        return 'my-layout';
+    }
 }

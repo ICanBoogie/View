@@ -13,12 +13,12 @@ use ICanBoogie\View\View;
  */
 final class BeforeRenderEvent extends Event
 {
-	public ?string $result;
+    public ?string $result;
 
-	public function __construct(View $target, ?string &$result)
-	{
-		$this->result = &$result;
+    public function __construct(View $target, ?string &$result)
+    {
+        $this->result = &$result;
 
-		parent::__construct($target);
-	}
+        parent::__construct($target);
+    }
 }

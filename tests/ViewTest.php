@@ -32,183 +32,183 @@ use function uniqid;
 
 class ViewTest extends TestCase
 {
-	private const FIXTURE_CONTENT = "TESTING";
+    private const FIXTURE_CONTENT = "TESTING";
 
-	static private function generate_bytes($length = 2048)
-	{
-		return random_bytes($length);
-	}
+    private static function generate_bytes($length = 2048)
+    {
+        return random_bytes($length);
+    }
 
-	private MockObject|ControllerAbstract $controller;
-	private Renderer $renderer;
-	private EventCollection $events;
+    private MockObject|ControllerAbstract $controller;
+    private Renderer $renderer;
+    private EventCollection $events;
 
-	public function setUp(): void
-	{
-		$this->controller = $this->createMock(ControllerAbstract::class);
-		$this->renderer = get_renderer();
-		$this->events = EventCollectionProvider::provide();
-	}
+    public function setUp(): void
+    {
+        $this->controller = $this->createMock(ControllerAbstract::class);
+        $this->renderer = get_renderer();
+        $this->events = EventCollectionProvider::provide();
+    }
 
-	public function test_get_controller(): void
-	{
-		$this->assertSame($this->controller, $this->makeSTU()->controller);
-	}
+    public function test_get_controller(): void
+    {
+        $this->assertSame($this->controller, $this->makeSTU()->controller);
+    }
 
-	public function test_get_renderer(): void
-	{
-		$this->assertSame($this->renderer, $this->makeSTU()->renderer);
-	}
+    public function test_get_renderer(): void
+    {
+        $this->assertSame($this->renderer, $this->makeSTU()->renderer);
+    }
 
-	public function test_get_variables(): void
-	{
-		$content = self::generate_bytes();
-		$v1 = self::generate_bytes();
-		$v2 = self::generate_bytes();
+    public function test_get_variables(): void
+    {
+        $content = self::generate_bytes();
+        $v1 = self::generate_bytes();
+        $v2 = self::generate_bytes();
 
-		$view = $this->makeSTU();
-		$view->content = $content;
-		$view['v1'] = $v1;
-		$view['v2'] = $v2;
+        $view = $this->makeSTU();
+        $view->content = $content;
+        $view['v1'] = $v1;
+        $view['v2'] = $v2;
 
-		$this->assertSame($content, $view->content);
-		$this->assertSame($content, $view['content']);
-		$this->assertEquals([ 'content' => $content, 'v1' => $v1, 'v2' => $v2, 'view' => $view ], $view->variables);
-	}
+        $this->assertSame($content, $view->content);
+        $this->assertSame($content, $view['content']);
+        $this->assertEquals([ 'content' => $content, 'v1' => $v1, 'v2' => $v2, 'view' => $view ], $view->variables);
+    }
 
-	public function test_assign(): void
-	{
-		$content = uniqid();
-		$v1 = uniqid();
-		$v2 = uniqid();
+    public function test_assign(): void
+    {
+        $content = uniqid();
+        $v1 = uniqid();
+        $v2 = uniqid();
 
-		$view = $this->makeSTU();
-		$view->assign(compact('content', 'v1', 'v2'));
+        $view = $this->makeSTU();
+        $view->assign(compact('content', 'v1', 'v2'));
 
-		$this->assertSame($content, $view->content);
-		$this->assertSame($content, $view['content']);
-		$this->assertEquals([ 'content' => $content, 'v1' => $v1, 'v2' => $v2, 'view' => $view ], $view->variables);
-	}
+        $this->assertSame($content, $view->content);
+        $this->assertSame($content, $view['content']);
+        $this->assertEquals([ 'content' => $content, 'v1' => $v1, 'v2' => $v2, 'view' => $view ], $view->variables);
+    }
 
-	/**
-	 * @dataProvider provide_test_get_template
-	 */
-	public function test_get_template(ControllerAbstract $controller, ?string $expected)
-	{
-		$this->markTestSkipped();
+    /**
+     * @dataProvider provide_test_get_template
+     */
+    public function test_get_template(ControllerAbstract $controller, ?string $expected)
+    {
+        $this->markTestSkipped();
 
-		$view = new View($controller, $this->renderer);
+        $view = new View($controller, $this->renderer);
 
-		$this->assertSame($expected, $view->template);
-	}
+        $this->assertSame($expected, $view->template);
+    }
 
-	public function provide_test_get_template(): array
-	{
-		$this->markTestSkipped();
+    public function provide_test_get_template(): array
+    {
+        $this->markTestSkipped();
 
-		$cases = [];
+        $cases = [];
 
-		#
+        #
 
-		$t = 'template' . uniqid();
+        $t = 'template' . uniqid();
 
-		$c = $this
-			->getMockBuilder(ControllerAbstract::class)
-			->getMockForAbstractClass();
+        $c = $this
+            ->getMockBuilder(ControllerAbstract::class)
+            ->getMockForAbstractClass();
 
-		$c->template = $t;
+        $c->template = $t;
 
-		$cases['from template'] = [ $c, $t ];
+        $cases['from template'] = [ $c, $t ];
 
-		#
+        #
 
-		$c_name = uniqid();
-		$c_action = uniqid();
+        $c_name = uniqid();
+        $c_action = uniqid();
 
-		$t = "$c_name/$c_action";
+        $t = "$c_name/$c_action";
 
-		$c = $this
-			->getMockBuilder(ControllerAbstract::class)
-			->onlyMethods([ 'get_name' ])
-			->addMethods([ 'get_action' ])
-			->getMockForAbstractClass();
+        $c = $this
+            ->getMockBuilder(ControllerAbstract::class)
+            ->onlyMethods([ 'get_name' ])
+            ->addMethods([ 'get_action' ])
+            ->getMockForAbstractClass();
 
-		$c->expects($this->once())
-			->method('get_name')
-			->willReturn($c_name);
+        $c->expects($this->once())
+            ->method('get_name')
+            ->willReturn($c_name);
 
-		$c->expects($this->once())
-			->method('get_action')
-			->willReturn($c_action);
+        $c->expects($this->once())
+            ->method('get_action')
+            ->willReturn($c_action);
 
-		$cases["from name and action"] = [ $c, $t ];
+        $cases["from name and action"] = [ $c, $t ];
 
-		#
+        #
 
-		$c = $this
-			->getMockBuilder(ControllerAbstract::class)
-			->getMockForAbstractClass();
+        $c = $this
+            ->getMockBuilder(ControllerAbstract::class)
+            ->getMockForAbstractClass();
 
-		$cases["no template"] = [ $c, null ];
+        $cases["no template"] = [ $c, null ];
 
-		#
+        #
 
-		return $cases;
-	}
+        return $cases;
+    }
 
-	public function test_array_interface()
-	{
-		$view = new View($this->controller, $this->renderer);
-		$this->assertFalse(isset($view['content']));
-		$expected = $this->generate_bytes();
-		$view['content'] = $expected;
-		$this->assertTrue(isset($view['content']));
-		$this->assertEquals($expected, $view['content']);
-		unset($view['content']);
-		$this->assertFalse(isset($view['content']));
-	}
+    public function test_array_interface()
+    {
+        $view = new View($this->controller, $this->renderer);
+        $this->assertFalse(isset($view['content']));
+        $expected = $this->generate_bytes();
+        $view['content'] = $expected;
+        $this->assertTrue(isset($view['content']));
+        $this->assertEquals($expected, $view['content']);
+        unset($view['content']);
+        $this->assertFalse(isset($view['content']));
+    }
 
-	public function test_should_throw_exception_on_undefined_offset()
-	{
-		$view = new View($this->controller, $this->renderer);
-		$this->expectException(OffsetNotDefined::class);
-		$view[uniqid()];
-	}
+    public function test_should_throw_exception_on_undefined_offset()
+    {
+        $view = new View($this->controller, $this->renderer);
+        $this->expectException(OffsetNotDefined::class);
+        $view[uniqid()];
+    }
 
-	public function test_view_getter()
-	{
-		$this->markTestSkipped();
+    public function test_view_getter()
+    {
+        $this->markTestSkipped();
 
-		$controller = $this->controller;
-		$this->assertInstanceOf(View::class, $controller->view);
-	}
+        $controller = $this->controller;
+        $this->assertInstanceOf(View::class, $controller->view);
+    }
 
-	public function test_render_with_decorator()
-	{
-		$this->markTestSkipped();
+    public function test_render_with_decorator()
+    {
+        $this->markTestSkipped();
 
-		$view = $this
-			->getMockBuilder(View::class)
-			->setConstructorArgs([ $this->controller, $this->renderer ])
-			->addMethods([ 'get_template', 'get_layout' ])
-			->getMock();
-		$view
-			->expects($this->once())
-			->method('get_template')
-			->willReturn('decorated');
+        $view = $this
+            ->getMockBuilder(View::class)
+            ->setConstructorArgs([ $this->controller, $this->renderer ])
+            ->addMethods([ 'get_template', 'get_layout' ])
+            ->getMock();
+        $view
+            ->expects($this->once())
+            ->method('get_template')
+            ->willReturn('decorated');
 
-		/* @var $view View */
+        /* @var $view View */
 
-		$content = 'MYCONTENT' . uniqid();
-		$v1 = 'V1' . uniqid();
-		$v2 = 'V2' . uniqid();
-		$view->content = $content;
-		$view['v1'] = $v1;
-		$view['v2'] = $v2;
-		$view->decorate_with('decorator');
-		$view_class = get_class($view);
+        $content = 'MYCONTENT' . uniqid();
+        $v1 = 'V1' . uniqid();
+        $v2 = 'V2' . uniqid();
+        $view->content = $content;
+        $view['v1'] = $v1;
+        $view['v2'] = $v2;
+        $view->decorate_with('decorator');
+        $view_class = get_class($view);
 
-		$expected = <<<EOT
+        $expected = <<<EOT
 <DECORATED>---
 CONTENT: $content|
 V1: $v1|
@@ -219,233 +219,240 @@ VIEW: $view_class|
 
 EOT;
 
-		$this->assertEquals($expected, $view->render());
-	}
+        $this->assertEquals($expected, $view->render());
+    }
 
-	public function test_partial()
-	{
-		$this->markTestSkipped();
+    public function test_partial()
+    {
+        $this->markTestSkipped();
 
-		$expected = uniqid();
-		$template = uniqid();
-		$locals = [ uniqid() => uniqid() ];
+        $expected = uniqid();
+        $template = uniqid();
+        $locals = [ uniqid() => uniqid() ];
 
-		$controller = $this
-			->getMockBuilder(ControllerAbstract::class)
-			->disableOriginalConstructor()
-			->getMockForAbstractClass();
+        $controller = $this
+            ->getMockBuilder(ControllerAbstract::class)
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
 
-		$renderer = $this
-			->getMockBuilder(Renderer::class)
-			->disableOriginalConstructor()
-			->onlyMethods([ 'render' ])
-			->getMock();
-		$renderer
-			->expects($this->once())
-			->method('render')
-			->with(new RenderOptions(partial: $template, locals: $locals))
-			->willReturn($expected);
+        $renderer = $this
+            ->getMockBuilder(Renderer::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([ 'render' ])
+            ->getMock();
+        $renderer
+            ->expects($this->once())
+            ->method('render')
+            ->with(new RenderOptions(partial: $template, locals: $locals))
+            ->willReturn($expected);
 
-		$view = new View($controller, $renderer);
-		$this->assertSame($expected, $view->partial(new class(){}, $template, $locals));
-	}
+        $view = new View($controller, $renderer);
+        $this->assertSame(
+            $expected,
+            $view->partial(
+                new class () {
+                },
+                $template,
+                $locals
+            )
+        );
+    }
 
-	public function test_view_render()
-	{
-		$this->markTestSkipped();
+    public function test_view_render()
+    {
+        $this->markTestSkipped();
 
-		$request = Request::from("/");
-		$request->context->add(new Route('/', 'action'));
+        $request = Request::from("/");
+        $request->context->add(new Route('/', 'action'));
 
-		$controller = $this
-			->getMockBuilder(ControllerAbstract::class)
-			->onlyMethods([ 'action' ])
-			->getMockForAbstractClass();
-		$controller
-			->expects($this->once())
-			->method('action')
-			->willReturnCallback(function () use ($controller) {
-				$controller->view->content = ViewTest::FIXTURE_CONTENT;
-			});
+        $controller = $this
+            ->getMockBuilder(ControllerAbstract::class)
+            ->onlyMethods([ 'action' ])
+            ->getMockForAbstractClass();
+        $controller
+            ->expects($this->once())
+            ->method('action')
+            ->willReturnCallback(function () use ($controller) {
+                $controller->view->content = ViewTest::FIXTURE_CONTENT;
+            });
 
-		$response = $controller->respond($request);
-		$this->assertEquals(self::FIXTURE_CONTENT, $response);
-	}
+        $response = $controller->respond($request);
+        $this->assertEquals(self::FIXTURE_CONTENT, $response);
+    }
 
-	public function test_view_render_with_default_layout()
-	{
-		$this->markTestSkipped();
+    public function test_view_render_with_default_layout()
+    {
+        $this->markTestSkipped();
 
-		$request = Request::from("/");
+        $request = Request::from("/");
 
-		$controller = $this
-			->getMockBuilder(ControllerAbstract::class)
-			->onlyMethods([ 'action' ])
-			->getMockForAbstractClass();
-		$controller
-			->expects($this->once())
-			->method('action')
-			->willReturnCallback(function () use ($controller) {
-				$controller->view->content = ViewTest::FIXTURE_CONTENT;
-			});
+        $controller = $this
+            ->getMockBuilder(ControllerAbstract::class)
+            ->onlyMethods([ 'action' ])
+            ->getMockForAbstractClass();
+        $controller
+            ->expects($this->once())
+            ->method('action')
+            ->willReturnCallback(function () use ($controller) {
+                $controller->view->content = ViewTest::FIXTURE_CONTENT;
+            });
 
-		$request->context->add(new Route('/', 'action'));
+        $request->context->add(new Route('/', 'action'));
 
-		$response = $controller->respond($request);
-		$this->assertEquals(
-			<<<EOT
+        $response = $controller->respond($request);
+        $this->assertEquals(
+            <<<EOT
 <default>TESTING</default>
 
 EOT
-			,
-			$response
-		);
-	}
+            ,
+            $response
+        );
+    }
 
-	public function test_view_render_with_custom_layout()
-	{
-		$this->markTestSkipped();
+    public function test_view_render_with_custom_layout(): void
+    {
+        $this->markTestSkipped();
 
-		$request = Request::from("/");
-//		$request->context->add(new Route('/', [ 'layout' => 'custom' ]));
-		$request->context->add(new Route('/', 'action'));
+        $request = Request::from("/");
+        $request->context->add(new Route('/', 'action'));
 
-		$controller = $this
-			->getMockBuilder(ControllerAbstract::class)
-			->onlyMethods([ 'action' ])
-			->getMockForAbstractClass();
-		$controller
-			->expects($this->once())
-			->method('action')
-			->willReturnCallback(
-				Closure::bind(function () {
-					$this->view->content = ViewTest::FIXTURE_CONTENT;
-				}, $controller)
-			);
+        $controller = $this
+            ->getMockBuilder(ControllerAbstract::class)
+            ->onlyMethods([ 'action' ])
+            ->getMockForAbstractClass();
+        $controller
+            ->expects($this->once())
+            ->method('action')
+            ->willReturnCallback(
+                Closure::bind(function () {
+                    $this->view->content = ViewTest::FIXTURE_CONTENT;
+                }, $controller)
+            );
 
-		$response = $controller->respond($request);
-		$this->assertEquals(
-			<<<EOT
+        $response = $controller->respond($request);
+        $this->assertEquals(
+            <<<EOT
 <custom>TESTING</custom>
 
 EOT
-			,
-			$response
-		);
-	}
+            ,
+            $response
+        );
+    }
 
-	public function test_controller_with_json_response()
-	{
-		$this->markTestSkipped();
+    public function test_controller_with_json_response()
+    {
+        $this->markTestSkipped();
 
-		$request = Request::from("/");
-		$request->context->add(new Route('/', 'action'));
+        $request = Request::from("/");
+        $request->context->add(new Route('/', 'action'));
 
-		$controller = $this
-			->getMockBuilder(ControllerAbstract::class)
-			->onlyMethods([ 'action' ])
-			->getMockForAbstractClass();
-		$controller
-			->expects($this->once())
-			->method('action')
-			->willReturnCallback(
-				Closure::bind(function () {
-					$this->view->content = [ 1 => "one", 2 => "two" ];
-					$this->view->template = "json";
-					$this->view->layout = null;
+        $controller = $this
+            ->getMockBuilder(ControllerAbstract::class)
+            ->onlyMethods([ 'action' ])
+            ->getMockForAbstractClass();
+        $controller
+            ->expects($this->once())
+            ->method('action')
+            ->willReturnCallback(
+                Closure::bind(function () {
+                    $this->view->content = [ 1 => "one", 2 => "two" ];
+                    $this->view->template = "json";
+                    $this->view->layout = null;
 
-					$this->response->headers->content_type = "application/json";
-				}, $controller)
-			);
+                    $this->response->headers->content_type = "application/json";
+                }, $controller)
+            );
 
-		$response = $controller->respond($request);
+        $response = $controller->respond($request);
 
-		$this->assertInstanceOf(Response::class, $response);
-		$this->assertEquals("application/json", $response->content_type);
-		$this->assertEquals('{"1":"one","2":"two"}', $response->body);
-	}
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertEquals("application/json", $response->content_type);
+        $this->assertEquals('{"1":"one","2":"two"}', $response->body);
+    }
 
-	public function test_on_action_should_preserve_result()
-	{
-		$view = $this
-			->getMockBuilder(View::class)
-			->disableOriginalConstructor()
-			->onlyMethods([ 'render' ])
-			->getMock();
-		$view
-			->expects($this->never())
-			->method('render');
+    public function test_on_action_should_preserve_result()
+    {
+        $view = $this
+            ->getMockBuilder(View::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([ 'render' ])
+            ->getMock();
+        $view
+            ->expects($this->never())
+            ->method('render');
 
-		$result = uniqid();
+        $result = uniqid();
 
-		$event = $this
-			->getMockBuilder(Controller\ActionEvent::class)
-			->disableOriginalConstructor()
-			->getMock();
+        $event = $this
+            ->getMockBuilder(Controller\ActionEvent::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-		/* @var $event Controller\ActionEvent */
+        /* @var $event Controller\ActionEvent */
 
-		$event->result = $result;
+        $event->result = $result;
 
-		$on_action = new ReflectionMethod($view, 'on_action');
-		$on_action->setAccessible(true);
-		$on_action->invoke($view, $event);
+        $on_action = new ReflectionMethod($view, 'on_action');
+        $on_action->setAccessible(true);
+        $on_action->invoke($view, $event);
 
-		$this->assertSame($result, $event->result);
-	}
+        $this->assertSame($result, $event->result);
+    }
 
-	public function test_on_action_should_preserve_before_render_event_result()
-	{
-		$this->markTestSkipped();
+    public function test_on_action_should_preserve_before_render_event_result()
+    {
+        $this->markTestSkipped();
 
-		$expected_result = uniqid();
-		$controller = $this->controller;
-		$view = new View($controller, $this->renderer);
+        $expected_result = uniqid();
+        $controller = $this->controller;
+        $view = new View($controller, $this->renderer);
 
-		$this->events->attach_to($view, function (View\BeforeRenderEvent $event, View $target) use ($expected_result) {
-			$event->result = $expected_result;
-		});
+        $this->events->attach_to($view, function (View\BeforeRenderEvent $event, View $target) use ($expected_result) {
+            $event->result = $expected_result;
+        });
 
-		$result = null;
+        $result = null;
 
-		new Controller\ActionEvent($controller, $result);
+        new Controller\ActionEvent($controller, $result);
 
-		$this->assertEquals($expected_result, $result);
-	}
+        $this->assertEquals($expected_result, $result);
+    }
 
-	public function test_should_remove_this_during_json_serializ_if_view()
-	{
-		$view = new View($this->controller, $this->renderer);
-		$view->template = $template = uniqid();
-		$view->layout = $layout = uniqid();
-		$view['this'] = $view;
-		$view['var'] = $var = uniqid();
+    public function test_should_remove_this_during_json_serializ_if_view()
+    {
+        $view = new View($this->controller, $this->renderer);
+        $view->template = $template = uniqid();
+        $view->layout = $layout = uniqid();
+        $view['this'] = $view;
+        $view['var'] = $var = uniqid();
 
-		$array = $view->jsonSerialize();
-		$this->assertEquals($template, $array['template']);
-		$this->assertEquals($layout, $array['layout']);
-		$this->assertEquals($var, $array['variables']['var']);
-		$this->assertArrayNotHasKey('this', $array['variables']);
-	}
+        $array = $view->jsonSerialize();
+        $this->assertEquals($template, $array['template']);
+        $this->assertEquals($layout, $array['layout']);
+        $this->assertEquals($var, $array['variables']['var']);
+        $this->assertArrayNotHasKey('this', $array['variables']);
+    }
 
-	public function test_should_remove_preserve_this_during_json_serializ_if_not_view()
-	{
-		$view = new View($this->controller, $this->renderer);
-		$view->template = $template = uniqid();
-		$view->layout = $layout = uniqid();
-		$view['this'] = $that = (object) [ 'property' => uniqid() ];
-		$view['var'] = $var = uniqid();
+    public function test_should_remove_preserve_this_during_json_serializ_if_not_view()
+    {
+        $view = new View($this->controller, $this->renderer);
+        $view->template = $template = uniqid();
+        $view->layout = $layout = uniqid();
+        $view['this'] = $that = (object)[ 'property' => uniqid() ];
+        $view['var'] = $var = uniqid();
 
-		$array = $view->jsonSerialize();
-		$this->assertEquals($template, $array['template']);
-		$this->assertEquals($layout, $array['layout']);
-		$this->assertEquals($var, $array['variables']['var']);
-		$this->assertArrayHasKey('this', $array['variables']);
-		$this->assertEquals($that, $array['variables']['this']);
-	}
+        $array = $view->jsonSerialize();
+        $this->assertEquals($template, $array['template']);
+        $this->assertEquals($layout, $array['layout']);
+        $this->assertEquals($var, $array['variables']['var']);
+        $this->assertArrayHasKey('this', $array['variables']);
+        $this->assertEquals($that, $array['variables']['this']);
+    }
 
-	private function makeSTU(): View
-	{
-		return new View($this->controller, $this->renderer);
-	}
+    private function makeSTU(): View
+    {
+        return new View($this->controller, $this->renderer);
+    }
 }
