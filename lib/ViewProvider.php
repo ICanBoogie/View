@@ -9,17 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Test\ICanBoogie\View\ControllerBindingsTest;
+namespace ICanBoogie\View;
 
 use ICanBoogie\Routing\ControllerAbstract;
-use ICanBoogie\View\ControllerBindings as ViewBindings;
 
-abstract class BoundControllerWithTemplate extends ControllerAbstract
+interface ViewProvider
 {
-    use ViewBindings;
-
-    protected function get_template(): string
-    {
-        return 'my-template';
-    }
+    /**
+     * Provides a new view for a controller.
+     */
+    public function view_for_controller(ControllerAbstract $controller): View;
 }

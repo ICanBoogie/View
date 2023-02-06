@@ -13,22 +13,14 @@ namespace Test\ICanBoogie\View;
 
 use ICanBoogie\EventCollection;
 use ICanBoogie\EventCollectionProvider;
-use ICanBoogie\Prototype;
-use ICanBoogie\Prototyped;
 use ICanBoogie\Render;
 use ICanBoogie\Render\BasicTemplateResolver;
-use ICanBoogie\Routing\ControllerAbstract;
-use ICanBoogie\View\View;
-
-use function ICanBoogie\emit;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 #
 # Building the tiniest fake app for Controller
 #
-
-$app = new Prototyped();
 
 EventCollectionProvider::define(function () {
     static $collection;
@@ -49,30 +41,8 @@ function get_renderer(): Render\Renderer
     ]);
 
     $engines = new Render\EngineProvider\Immutable([
-        '.php' => new Render\PHPEngine()
+        '.phtml' => new Render\PHPEngine()
     ]);
 
     return $renderer = new Render\Renderer($template_resolver, $engines);
 }
-
-#
-# Configuring prototypes
-#
-
-Prototype::bind([
-
-    ControllerAbstract::class => [
-        'get_app' => function () use ($app) {
-            return $app;
-        },
-
-        'lazy_get_view' => function (ControllerAbstract $controller) {
-            $view = new View($controller, get_renderer());
-
-            emit(new View\AlterEvent($view));
-
-            return $view;
-        }
-    ]
-
-]);

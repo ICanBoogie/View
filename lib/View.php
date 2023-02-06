@@ -12,72 +12,135 @@
 namespace ICanBoogie\View;
 
 use ArrayAccess;
-use ICanBoogie\Accessor\AccessorTrait;
-use ICanBoogie\EventCollectionProvider;
 use ICanBoogie\OffsetNotDefined;
-use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\Render\Renderer;
 use ICanBoogie\Render\RenderOptions;
-use ICanBoogie\Routing\Controller;
-use ICanBoogie\Routing\ControllerAbstract;
-use ICanBoogie\Routing\Route;
 use JsonSerializable;
-use Throwable;
+use Stringable;
 
 use function array_key_exists;
 use function array_merge;
 use function array_reverse;
-use function ICanBoogie\emit;
+use function assert;
 use function is_string;
-use function strtr;
 
 /**
  * A view.
  *
- * @property-read array $variables The variables to pass to the template.
- * @property mixed $content The content of the view.
- * @property string $layout The name of the layout that should decorate the content.
- * @property string $template The name of the template that should render the content.
- *
  * @implements ArrayAccess<string, mixed>
  */
-#[\AllowDynamicProperties]
-class View implements ArrayAccess, JsonSerializable
+class View implements ArrayAccess, JsonSerializable, Stringable
 {
-    /**
-     * @uses get_variables
-     * @uses get_content
-     * @uses set_content
-     * @uses lazy_get_template
-     * @uses lazy_get_layout
-     */
-    use AccessorTrait;
+    public const LOCAL_CONTENT = 'content';
+    public const LOCAL_VIEW = 'view';
 
-    private readonly LayoutResolver $layout_resolver;
+    /**
+     * The content to render.
+     */
+    public mixed $content = null;
+
+    /**
+     * The name of the template that should render the content.
+     */
+    public string $template;
+
+    /**
+     * The name of the layout that should decorate the content.
+     */
+    public ?string $layout = null;
 
     /**
      * View's variables.
      *
      * @var array<string, mixed>
      */
-    private array $variables = [];
+    public array $locals = [];
+
+    public function __construct(
+        public readonly Renderer $renderer,
+    ) {
+    }
+
+    public function __toString(): string
+    {
+        return $this->render();
+    }
 
     /**
-     * @return array<string, mixed>
+     * @inheritdoc
+     *
+     * @return array{ content: mixed, template: string, layout: ?string, locals: array<string, mixed> }
      */
-    private function get_variables(): array
+    public function jsonSerialize(): array
     {
-        return $this->variables;
+        return [
+
+            'content' => $this->content,
+            'template' => $this->template,
+            'layout' => $this->layout,
+            'locals' => $this->locals
+
+        ];
     }
 
-    private function get_content(): mixed
+    /**
+     * @param string $offset
+     */
+    public function offsetExists(mixed $offset): bool
     {
-        return $this->variables['content'] ?? null;
+        assert(is_string($offset));
+
+        return array_key_exists($offset, $this->locals);
     }
 
-    private function set_content(mixed $content): void
+    /**
+     * @param string $offset
+     *
+     * @throws OffsetNotDefined if the offset is not defined.
+     */
+    public function offsetGet(mixed $offset): mixed
     {
-        $this->variables['content'] = $content;
+        assert(is_string($offset));
+
+        if (!$this->offsetExists($offset)) {
+            throw new OffsetNotDefined([ $offset, $this ]);
+        }
+
+        return $this->locals[$offset];
+    }
+
+    /**
+     * @param string $offset
+     */
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        assert(is_string($offset));
+
+        $this->locals[$offset] = $value;
+    }
+
+    /**
+     * @param string $offset
+     */
+    public function offsetUnset(mixed $offset): void
+    {
+        assert(is_string($offset));
+
+        unset($this->locals[$offset]);
+    }
+
+    /**
+     * Assign multiple variables.
+     *
+     * @param array<string, mixed> $locals
+     *
+     * @return $this
+     */
+    public function assign(array $locals): self
+    {
+        $this->locals = array_merge($this->locals, $locals);
+
+        return $this;
     }
 
     /**
@@ -88,196 +151,11 @@ class View implements ArrayAccess, JsonSerializable
     private array $decorators = [];
 
     /**
-     * Return the name of the template.
-     *
-     * The template name is resolved as follows:
-     *
-     * - The `template` property of the route.
-     * - The `template` property of the controller.
-     * - The `{$controller->name}/{$controller->action}`, if the controller has an `action`
-     * property.
-     */
-    private function lazy_get_template(): ?string
-    {
-        $controller = $this->controller;
-
-        foreach ($this->template_resolvers() as $provider) {
-            try {
-                return $provider($controller);
-            } catch (PropertyNotDefined) {
-                #
-                # Resolver failed, we continue with the next.
-                #
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns an array of callable used to resolve the {@link $template} property.
-     *
-     * @return callable[]
-     *
-     * @internal
-     */
-    private function template_resolvers(): array
-    {
-        return [
-
-            // ROUTES ALWAYS HAVE AN ACTION
-            function ($controller) {
-                $route = $controller->route;
-
-                return strtr($route->action, Route::ACTION_SEPARATOR, '/');
-            },
-
-        ];
-    }
-
-    /**
-     * Returns the name of the layout.
-     *
-     * The layout name is resolved as follows:
-     *
-     * - The `layout` property of the route.
-     * - The `layout` property of the controller.
-     * - If the identifier of the route starts with "admin:", "admin" is returned.
-     * - If the route pattern is "/" and a "home" layout template is available, "home" is returned.
-     * - If the "@page" template is available, "page" is returned.
-     * - "default" is returned.
-     */
-    protected function lazy_get_layout(): ?string
-    {
-        return $this->layout_resolver->resolve_layout($this);
-    }
-
-    /**
-     * An event hook is attached to the `action` event of the controller for late rendering,
-     * which only happens if the response is `null`.
-     */
-    public function __construct(
-        public readonly ControllerAbstract $controller,
-        public readonly Renderer $renderer,
-        LayoutResolver $layout_resolver = null,
-    ) {
-        $this->layout_resolver = $layout_resolver ?? new LayoutResolver\Basic($renderer);
-
-        $this['view'] = $this;
-
-        EventCollectionProvider::provide()->attach_to(
-            $controller,
-            // @phpstan-ignore-next-line
-            function (Controller\ActionEvent $event, ControllerAbstract $target): void {
-                $this->on_action($event);
-            }
-        );
-    }
-
-    /**
-     * @inheritdoc
-     *
-     * @return array{ template: string, layout: string, variables: array<string, mixed> }
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-
-            'template' => $this->template,
-            'layout' => $this->layout,
-            'variables' => $this->ensure_without_this($this->variables)
-
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function offsetExists(mixed $offset): bool
-    {
-        return array_key_exists($offset, $this->variables);
-    }
-
-    /**
-     * @inheritdoc
-     *
-     * @throws OffsetNotDefined if the offset is not defined.
-     */
-    public function offsetGet(mixed $offset): mixed
-    {
-        if (!$this->offsetExists($offset)) {
-            throw new OffsetNotDefined([ $offset, $this ]);
-        }
-
-        return $this->variables[$offset];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function offsetSet(mixed $offset, mixed $value): void
-    {
-        $this->variables[$offset] = $value;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function offsetUnset(mixed $offset): void
-    {
-        unset($this->variables[$offset]);
-    }
-
-    /**
-     * Assign multiple variables.
-     *
-     * @param array<string, mixed> $variables
-     *
-     * @return $this
-     */
-    public function assign(array $variables): self
-    {
-        $this->variables = array_merge($this->variables, $variables);
-
-        return $this;
-    }
-
-    /**
      * Add a template to decorate the content with.
      */
     public function decorate_with(string $template): void
     {
         $this->decorators[] = $template;
-    }
-
-    /**
-     * Render the content with template, layout, and decorators.
-     */
-    public function render(): string
-    {
-        return $this->decorate(
-            $this->renderer->render(
-                $this->content,
-                new RenderOptions(
-                    template: $this->template,
-                    layout: $this->layout,
-                    locals: $this->variables,
-                )
-            )
-        );
-    }
-
-    /**
-     * Render the content with a simple partial template.
-     *
-     * @param array<string, mixed> $locals
-     */
-    public function partial(mixed $content, string $template, array $locals = []): string
-    {
-        return $this->renderer->render(
-            $content,
-            new RenderOptions(partial: $template, locals: $locals)
-        );
     }
 
     private function decorate(mixed $content): string
@@ -297,45 +175,40 @@ class View implements ArrayAccess, JsonSerializable
     }
 
     /**
-     * Renders the view on `Controller::action` event.
-     *
-     * **Note:** The view is not rendered if the event's response is defined, which is the case
-     * when the controller obtained a result after its execution.
-     *
-     * @param Controller\ActionEvent $event
-     *
-     * @throws Throwable
+     * Render the content with template, layout, and decorators.
      */
-    protected function on_action(Controller\ActionEvent $event): void
+    public function render(): string
     {
-        if ($event->result !== null) {
-            return;
-        }
-
-        emit(new View\BeforeRenderEvent($this, $event->result));
-
-        if ($event->result !== null) {
-            return;
-        }
-
-        $event->result = $this->render();
+        return $this->decorate(
+            $this->renderer->render(
+                $this->content,
+                new RenderOptions(
+                    template: $this->template,
+                    layout: $this->layout,
+                    locals: [
+                        self::LOCAL_CONTENT => $this->content,
+                        self::LOCAL_VIEW => $this,
+                    ] + $this->locals,
+                )
+            )
+        );
     }
 
     /**
-     * Ensures the array does not include our instance.
+     * Render the content with a simple partial template.
      *
-     * @param array<string, mixed> $array
-     *
-     * @return array<string, mixed>
+     * @param array<string, mixed> $locals
      */
-    private function ensure_without_this(array $array): array
+    public function partial(mixed $content, string $template, array $locals = []): string
     {
-        foreach ($array as $key => $value) {
-            if ($value === $this) {
-                unset($array[$key]);
-            }
-        }
-
-        return $array;
+        return $this->renderer->render(
+            $content,
+            new RenderOptions(
+                partial: $template,
+                locals: [
+                    self::LOCAL_VIEW => $this,
+                ] + $locals
+            )
+        );
     }
 }

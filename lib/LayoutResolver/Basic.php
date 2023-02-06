@@ -11,49 +11,31 @@
 
 namespace ICanBoogie\View\LayoutResolver;
 
-use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\Render\Renderer;
 use ICanBoogie\Render\TemplateName;
 use ICanBoogie\Render\TemplateNotFound;
-use ICanBoogie\Routing\ControllerAbstract;
 use ICanBoogie\Routing\Route;
 use ICanBoogie\View\LayoutResolver;
-use ICanBoogie\View\View;
 
 use function str_starts_with;
 
-class Basic implements LayoutResolver
+final class Basic implements LayoutResolver
 {
     public function __construct(
         private readonly Renderer $renderer
     ) {
     }
 
-    public function resolve_layout(View $view): string
+    public function resolve_layout(Route $route): string
     {
-        $controller = $view->controller;
-
-        return $this->from_controller($controller)
-            ?? $this->from_route($controller->route)
+        return $this->from_route($route)
             ?? $this->from_page()
             ?? self::DEFAULT_LAYOUT;
     }
 
-    private function from_controller(ControllerAbstract $controller): ?string
-    {
-        try {
-            return $controller->layout; // @phpstan-ignore-line
-        } catch (PropertyNotDefined) { // @phpstan-ignore-line
-            #
-            # Unable to get the layout from the controller, we continue searching.
-            #
-        }
-        return null; // @phpstan-ignore-line
-    }
-
     private function from_route(Route $route): ?string
     {
-        if (str_starts_with($route->action, "admin:")) {
+        if (str_starts_with($route->action, self::ADMIN_ACTION_PREFIX)) {
             return self::ADMIN_LAYOUT;
         }
 

@@ -12,6 +12,7 @@
 namespace ICanBoogie\View\View;
 
 use ICanBoogie\Event;
+use ICanBoogie\Routing\ControllerAbstract;
 use ICanBoogie\View\View;
 
 /**
@@ -19,8 +20,14 @@ use ICanBoogie\View\View;
  */
 final class AlterEvent extends Event
 {
-    public function __construct(View $target)
-    {
+    /**
+     * @param ControllerAbstract $controller
+     *     The controller can be useful to alter the view. e.g. adjusting locals according to a route action.
+     */
+    public function __construct(
+        View $target,
+        public readonly ControllerAbstract $controller
+    ) {
         parent::__construct($target);
     }
 }
