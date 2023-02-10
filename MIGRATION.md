@@ -8,7 +8,7 @@ None
 
 ### New features
 
-None
+- Added `RenderTrait` to use with `ControllerAbstract`.
 
 ### Backward Incompatible Changes
 
