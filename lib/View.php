@@ -195,11 +195,11 @@ class View implements ArrayAccess, JsonSerializable, Stringable
     }
 
     /**
-     * Render the content with a simple partial template.
+     * Renders a partial template.
      *
      * @param array<string, mixed> $locals
      */
-    public function partial(mixed $content, string $template, array $locals = []): string
+    public function partial(string $template, mixed $content = null, array $locals = []): string
     {
         return $this->renderer->render(
             $content,

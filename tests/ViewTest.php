@@ -134,7 +134,7 @@ final class ViewTest extends TestCase
 
         $view = new View($renderer);
 
-        $actual = $view->partial($content, $template, $locals);
+        $actual = $view->partial($template, $content, $locals);
 
         $this->assertSame($expected, $actual);
     }
