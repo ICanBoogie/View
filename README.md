@@ -1,8 +1,7 @@
 # View
 
 [![Release](https://img.shields.io/packagist/v/icanboogie/view.svg)](https://packagist.org/packages/icanboogie/view)
-[![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/View/master.svg)](https://scrutinizer-ci.com/g/ICanBoogie/View)
-[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/View/master.svg)](https://coveralls.io/r/ICanBoogie/View)
+[![Code Coverage](https://coveralls.io/repos/github/ICanBoogie/View/badge.svg?branch=6.0)](https://coveralls.io/r/ICanBoogie/View?branch=6.0)
 [![Downloads](https://img.shields.io/packagist/dt/icanboogie/view.svg)](https://packagist.org/packages/icanboogie/view)
 
 The **icanboogie/view** package provides the _view_ part of the model-view-controller (MVC)
@@ -14,8 +13,8 @@ presentation from logic.
 
 #### Installation
 
-```bash
-composer require icanboogie/<name>
+```shell
+composer require icanboogie/view
 ```
 
 
@@ -403,30 +402,22 @@ view is rendered. Event hooks may use this event to provide a cached result.
 
 The project is continuously tested by [GitHub actions](https://github.com/ICanBoogie/View/actions).
 
-[![Tests](https://github.com/ICanBoogie/View/workflows/test/badge.svg?branch=master)](https://github.com/ICanBoogie/View/actions?query=workflow%3Atest)
-[![Static Analysis](https://github.com/ICanBoogie/View/workflows/static-analysis/badge.svg?branch=master)](https://github.com/ICanBoogie/View/actions?query=workflow%3Astatic-analysis)
-[![Code Style](https://github.com/ICanBoogie/View/workflows/code-style/badge.svg?branch=master)](https://github.com/ICanBoogie/View/actions?query=workflow%3Acode-style)
+[![Tests](https://github.com/ICanBoogie/View/actions/workflows/test.yml/badge.svg?branch=6.0)](https://github.com/ICanBoogie/View/actions/workflows/test.yml)
+[![Static Analysis](https://github.com/ICanBoogie/View/actions/workflows/static-analysis.yml/badge.svg?branch=6.0)](https://github.com/ICanBoogie/View/actions/workflows/static-analysis.yml)
+[![Code Style](https://github.com/ICanBoogie/View/actions/workflows/code-style.yml/badge.svg?branch=6.0)](https://github.com/ICanBoogie/View/actions/workflows/code-style.yml)
 
 
 
 ## Code of Conduct
 
 This project adheres to a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in
-this project and its community, you are expected to uphold this code.
+this project and its community, you're expected to uphold this code.
 
 
 
 ## Contributing
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-
-
-## License
-
-**icanboogie/view** is released under the [BSD-3-Clause](LICENSE).
-
-
+See [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 
 

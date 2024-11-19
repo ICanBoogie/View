@@ -21,9 +21,9 @@ trait RenderTrait
      */
     private function view(
         mixed $content = null,
-        string $template = null,
-        string $layout = null,
-        array $locals = null,
+        ?string $template = null,
+        ?string $layout = null,
+        ?array $locals = null,
     ): View {
         assert($this instanceof ControllerAbstract);
         assert(($this->view_provider ?? null) instanceof ViewProvider);
@@ -53,9 +53,9 @@ trait RenderTrait
      */
     private function render_to_string(
         mixed $content = null,
-        string $template = null,
-        string $layout = null,
-        array $locals = null,
+        ?string $template = null,
+        ?string $layout = null,
+        ?array $locals = null,
     ): string {
         return $this->view(
             content: $content,
@@ -72,9 +72,9 @@ trait RenderTrait
      */
     private function render(
         mixed $content = null,
-        string $template = null,
-        string $layout = null,
-        array $locals = null,
+        ?string $template = null,
+        ?string $layout = null,
+        ?array $locals = null,
     ): void {
         $this->response->body = $this->view(
             content: $content,

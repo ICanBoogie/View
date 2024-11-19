@@ -1,19 +1,11 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Test\ICanBoogie\View\LayoutResolver;
 
 use ICanBoogie\Render\Renderer;
 use ICanBoogie\Routing\Route;
 use ICanBoogie\View\LayoutResolver;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -28,9 +20,7 @@ final class BasicTest extends TestCase
         $this->renderer = $this->createMock(Renderer::class);
     }
 
-    /**
-     * @dataProvider provide_resolve_layout
-     */
+    #[DataProvider('provide_resolve_layout')]
     public function test_resolve_layout(callable $setup, Route $route, string $expected): void
     {
         $setup($this->renderer);

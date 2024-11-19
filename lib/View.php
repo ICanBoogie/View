@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace ICanBoogie\View;
 
 use ArrayAccess;
@@ -88,8 +79,6 @@ class View implements ArrayAccess, JsonSerializable, Stringable
      */
     public function offsetExists(mixed $offset): bool
     {
-        assert(is_string($offset));
-
         return array_key_exists($offset, $this->locals);
     }
 
@@ -100,10 +89,8 @@ class View implements ArrayAccess, JsonSerializable, Stringable
      */
     public function offsetGet(mixed $offset): mixed
     {
-        assert(is_string($offset));
-
         if (!$this->offsetExists($offset)) {
-            throw new OffsetNotDefined([ $offset, $this ]);
+            throw new OffsetNotDefined(offset: $offset, container: $this);
         }
 
         return $this->locals[$offset];
@@ -114,8 +101,6 @@ class View implements ArrayAccess, JsonSerializable, Stringable
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        assert(is_string($offset));
-
         $this->locals[$offset] = $value;
     }
 
@@ -124,8 +109,6 @@ class View implements ArrayAccess, JsonSerializable, Stringable
      */
     public function offsetUnset(mixed $offset): void
     {
-        assert(is_string($offset));
-
         unset($this->locals[$offset]);
     }
 

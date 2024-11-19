@@ -1,53 +1,52 @@
 {
-	"name": "icanboogie/view",
-	"type": "library",
-	"description": "Provides view support to ICanBoogie",
-	"keywords": [
-		"view",
-		"template"
-	],
-	"homepage": "https://icanboogie.org/",
-	"license": "BSD-3-Clause",
-	"authors": [
-		{
-			"name": "Olivier Laviale",
-			"email": "olivier.laviale@gmail.com",
-			"homepage": "https://olvlvl.com/",
-			"role": "Developer"
-		}
-	],
-	"support": {
-		"issues": "https://github.com/ICanBoogie/View/issues",
-		"source": "https://github.com/ICanBoogie/View"
-	},
-	"config": {
-        "sort-packages": true
-	},
-	"minimum-stability": "dev",
-	"prefer-stable": true,
-	"prefer-dist": true,
-	"require": {
-		"php": ">=8.1",
-		"ext-json": "*",
-		"icanboogie/event": "^6.0",
-		"icanboogie/render": "^6.0",
-		"icanboogie/routing": "^6.0"
-	},
-	"require-dev": {
-		"phpstan/phpstan": "^1.9",
-		"phpunit/phpunit": "^9.6"
-	},
-	"suggest": {
-		"icanboogie/bind-view": "Binds the package to ICanBoogie"
-	},
-	"autoload": {
-		"psr-4": {
-			"ICanBoogie\\View\\": "lib"
-		}
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"Test\\ICanBoogie\\View\\": "tests"
-		}
-	}
+  "name": "icanboogie/view",
+  "type": "library",
+  "description": "Provides view support to ICanBoogie",
+  "keywords": [
+    "view",
+    "template"
+  ],
+  "homepage": "https://icanboogie.org/",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Olivier Laviale",
+      "email": "olivier.laviale@gmail.com",
+      "homepage": "https://olvlvl.com/",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/ICanBoogie/View/issues",
+    "source": "https://github.com/ICanBoogie/View"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": ">=8.2",
+    "ext-json": "*",
+    "icanboogie/event": "^6.0",
+    "icanboogie/render": "^6.0",
+    "icanboogie/routing": "^6.0"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^2.0",
+    "phpunit/phpunit": "^11.4"
+  },
+  "suggest": {
+    "icanboogie/bind-view": "Binds the package to ICanBoogie"
+  },
+  "autoload": {
+    "psr-4": {
+      "ICanBoogie\\View\\": "lib"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Test\\ICanBoogie\\View\\": "tests"
+    }
+  }
 }
