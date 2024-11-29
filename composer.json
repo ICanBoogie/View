@@ -26,11 +26,11 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": ">=8.2",
+    "php": ">=8.4",
     "ext-json": "*",
-    "icanboogie/event": "^6.0",
-    "icanboogie/render": "^6.0",
-    "icanboogie/routing": "^6.0"
+    "icanboogie/event": "^7.0",
+    "icanboogie/render": "^7.0",
+    "icanboogie/routing": "^7.0"
   },
   "require-dev": {
     "phpstan/phpstan": "^2.0",

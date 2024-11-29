@@ -22,8 +22,8 @@ use function is_string;
  */
 class View implements ArrayAccess, JsonSerializable, Stringable
 {
-    public const LOCAL_CONTENT = 'content';
-    public const LOCAL_VIEW = 'view';
+    public const string LOCAL_CONTENT = 'content';
+    public const string LOCAL_VIEW = 'view';
 
     /**
      * The content to render.

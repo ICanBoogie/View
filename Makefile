@@ -27,12 +27,7 @@ test-coveralls: test-dependencies
 	@XDEBUG_MODE=coverage $(PHPUNIT) --coverage-clover build/logs/clover.xml
 
 .PHONY: test-container
-test-container: test-container-82
-
-.PHONY: test-container-82
-test-container-82:
-	@-docker-compose run --rm app82 bash
-	@docker-compose down -v
+test-container: test-container-84
 
 .PHONY: test-container-84
 test-container-84:
@@ -41,5 +36,5 @@ test-container-84:
 
 .PHONY: lint
 lint:
-	@XDEBUG_MODE=off phpcs -s
+#	@XDEBUG_MODE=off phpcs -s
 	@XDEBUG_MODE=off vendor/bin/phpstan

@@ -6,12 +6,12 @@ use ICanBoogie\Routing\Route;
 
 interface LayoutResolver
 {
-    public const HOME_PATH = '/';
-    public const HOME_LAYOUT = 'home';
-    public const PAGE_LAYOUT = 'page';
-    public const ADMIN_LAYOUT = 'admin';
-    public const ADMIN_ACTION_PREFIX = 'admin:';
-    public const DEFAULT_LAYOUT = 'default';
+    public const string HOME_PATH = '/';
+    public const string HOME_LAYOUT = 'home';
+    public const string PAGE_LAYOUT = 'page';
+    public const string ADMIN_LAYOUT = 'admin';
+    public const string ADMIN_ACTION_PREFIX = 'admin:';
+    public const string DEFAULT_LAYOUT = 'default';
 
     /**
      * Resolves the layout template for the view.
