@@ -25,7 +25,7 @@ If you use the package with [ICanBoogie][], require [icanboogie/bind-view][] and
 
 ## Returning a view from an action
 
-The [RenderTrait][] adds a `view()` method to your controller, it creates a view for the controller with
+The [ViewTrait][] adds a `view()` method to your controller, it creates a view for the controller with
 the provider found in its `view_provider` property.
 
 ```php
@@ -34,13 +34,13 @@ the provider found in its `view_provider` property.
 namespace App\Articles;
 
 use ICanBoogie\Routing\Attribute\Get;
-use ICanBoogie\View\RenderTrait;
+use ICanBoogie\View\ViewTrait;
 use ICanBoogie\View\View;
 use ICanBoogie\View\ViewProvider;
 
 final class ArticleController
 {
-    use RenderTrait;
+    use ViewTrait;
 
     public function __construct(
         private readonly ViewProvider $view_provider,
@@ -105,7 +105,7 @@ the template must be set, because there is no route to resolve it from.
 
 [View]: ../lib/View.php
 [ViewProvider]: ../lib/ViewProvider.php
-[RenderTrait]: ../lib/RenderTrait.php
+[ViewTrait]: ../lib/ViewTrait.php
 [IntoResponse]: https://github.com/ICanBoogie/Routing/blob/master/lib/IntoResponse.php
 [stateless controller]: https://github.com/ICanBoogie/Routing/blob/master/docs/StatelessControllers.md
 [icanboogie/render]: https://github.com/ICanBoogie/Render

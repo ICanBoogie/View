@@ -9,7 +9,7 @@ namespace ICanBoogie\View;
  * Actions return the view, which turns itself into a response, see
  * {@see \ICanBoogie\Routing\IntoResponse}.
  */
-trait RenderTrait
+trait ViewTrait
 {
     /**
      * Creates a view.
