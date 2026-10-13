@@ -2,8 +2,8 @@
 
 namespace ICanBoogie\View\ViewProvider;
 
+use ICanBoogie\HTTP\Request;
 use ICanBoogie\Render\Renderer;
-use ICanBoogie\Routing\ControllerAbstract;
 use ICanBoogie\Routing\Route;
 use ICanBoogie\View\LayoutResolver;
 use ICanBoogie\View\View;
@@ -19,17 +19,22 @@ final class Basic implements ViewProvider
     ) {
     }
 
-    public function view_for_controller(ControllerAbstract $controller): View
+    public function view(object $controller): View
     {
-        $view = new View($this->renderer);
+        return new View(
+            $this->renderer,
+            fn(View $view, Request $request) => $this->prepare($view, $request, $controller),
+        );
+    }
 
-        emit(new View\AlterEvent($view, $controller));
+    private function prepare(View $view, Request $request, object $controller): void
+    {
+        $route = $request->context->get(Route::class);
 
-        $route = $controller->route;
         $view->template ??= $this->resolve_template($route);
         $view->layout ??= $this->resolve_layout($route);
 
-        return $view;
+        emit(new View\AlterEvent($view, $controller, $request));
     }
 
     private function resolve_template(Route $route): string

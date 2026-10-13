@@ -2,20 +2,20 @@
 
 namespace ICanBoogie\View;
 
-use ICanBoogie\Routing\ControllerAbstract;
-
-use function assert;
-
 /**
- * A trait for {@link ControllerAbstract}.
+ * A trait for controllers.
+ *
+ * The using class must provide a `view_provider` property of type {@link ViewProvider}.
+ * Actions return the view, which turns itself into a response, see
+ * {@see \ICanBoogie\Routing\IntoResponse}.
  */
 trait RenderTrait
 {
     /**
      * Creates a view.
      *
-     * The `template` and the `layout` are pre-determined by the view provider,
-     * but can be overloaded.
+     * The `template` and the `layout` are pre-determined by the view provider when the view is
+     * turned into a response, but can be overloaded.
      *
      * @param array<string, mixed>|null $locals
      */
@@ -24,11 +24,9 @@ trait RenderTrait
         ?string $template = null,
         ?string $layout = null,
         ?array $locals = null,
+        ?string $content_type = null,
     ): View {
-        assert($this instanceof ControllerAbstract);
-        assert(($this->view_provider ?? null) instanceof ViewProvider);
-
-        $view = $this->view_provider->view_for_controller($this);
+        $view = $this->view_provider->view($this);
 
         if ($content !== null) {
             $view->content = $content;
@@ -42,45 +40,10 @@ trait RenderTrait
         if ($locals !== null) {
             $view->assign($locals);
         }
+        if ($content_type !== null) {
+            $view->content_type = $content_type;
+        }
 
         return $view;
-    }
-
-    /**
-     * Creates a view with {@link view()} and renders a string.
-     *
-     * @param array<string, mixed>|null $locals
-     */
-    private function render_to_string(
-        mixed $content = null,
-        ?string $template = null,
-        ?string $layout = null,
-        ?array $locals = null,
-    ): string {
-        return $this->view(
-            content: $content,
-            template: $template,
-            layout: $layout,
-            locals: $locals,
-        )->render();
-    }
-
-    /**
-     * Creates a view with {@link view()} and renders as response's body.
-     *
-     * @param array<string, mixed>|null $locals
-     */
-    private function render(
-        mixed $content = null,
-        ?string $template = null,
-        ?string $layout = null,
-        ?array $locals = null,
-    ): void {
-        $this->response->body = $this->view(
-            content: $content,
-            template: $template,
-            layout: $layout,
-            locals: $locals,
-        )->render();
     }
 }

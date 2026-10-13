@@ -3,9 +3,13 @@
 namespace ICanBoogie\View;
 
 use ArrayAccess;
+use Closure;
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Response;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\Render\Renderer;
 use ICanBoogie\Render\RenderOptions;
+use ICanBoogie\Routing\IntoResponse;
 use JsonSerializable;
 use Stringable;
 
@@ -20,7 +24,7 @@ use function is_string;
  *
  * @implements ArrayAccess<string, mixed>
  */
-class View implements ArrayAccess, JsonSerializable, Stringable
+class View implements ArrayAccess, JsonSerializable, Stringable, IntoResponse
 {
     public const string LOCAL_CONTENT = 'content';
     public const string LOCAL_VIEW = 'view';
@@ -33,12 +37,17 @@ class View implements ArrayAccess, JsonSerializable, Stringable
     /**
      * The name of the template that should render the content.
      */
-    public string $template;
+    public ?string $template = null;
 
     /**
      * The name of the layout that should decorate the content.
      */
     public ?string $layout = null;
+
+    /**
+     * The content type of the response.
+     */
+    public string $content_type = 'text/html; charset=utf-8';
 
     /**
      * View's variables.
@@ -47,9 +56,28 @@ class View implements ArrayAccess, JsonSerializable, Stringable
      */
     public array $locals = [];
 
+    /**
+     * @param (Closure(View, Request): void)|null $prepare
+     *     Completes the view, with its default template and layout for instance, when it is turned
+     *     into a response. The route of the request is available in its context.
+     */
     public function __construct(
         public readonly Renderer $renderer,
+        private readonly ?Closure $prepare = null,
     ) {
+    }
+
+    public function into_response(Request $request): Response
+    {
+        if ($this->prepare) {
+            ($this->prepare)($this, $request);
+        }
+
+        return new Response($this->render(), headers: [
+
+            'Content-Type' => $this->content_type,
+
+        ]);
     }
 
     public function __toString(): string
@@ -60,7 +88,7 @@ class View implements ArrayAccess, JsonSerializable, Stringable
     /**
      * @inheritdoc
      *
-     * @return array{ content: mixed, template: string, layout: ?string, locals: array<string, mixed> }
+     * @return array{ content: mixed, template: ?string, layout: ?string, locals: array<string, mixed> }
      */
     public function jsonSerialize(): array
     {

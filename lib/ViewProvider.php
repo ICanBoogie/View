@@ -2,12 +2,13 @@
 
 namespace ICanBoogie\View;
 
-use ICanBoogie\Routing\ControllerAbstract;
-
 interface ViewProvider
 {
     /**
      * Provides a new view for a controller.
+     *
+     * The template and layout are resolved from the route when the view is turned into a response,
+     * unless they were set.
      */
-    public function view_for_controller(ControllerAbstract $controller): View;
+    public function view(object $controller): View;
 }

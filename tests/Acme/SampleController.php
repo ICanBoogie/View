@@ -2,15 +2,13 @@
 
 namespace Test\ICanBoogie\View\Acme;
 
-use ICanBoogie\Routing\ControllerAbstract;
 use ICanBoogie\View\RenderTrait;
 use ICanBoogie\View\ViewProvider;
 
-abstract class SampleController extends ControllerAbstract
+abstract class SampleController
 {
     use RenderTrait {
         view as protected;
-        render as protected;
     }
 
     public function __construct(

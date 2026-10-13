@@ -3,22 +3,31 @@
 namespace ICanBoogie\View\View;
 
 use ICanBoogie\Event;
-use ICanBoogie\Routing\ControllerAbstract;
+use ICanBoogie\HTTP\Request;
 use ICanBoogie\View\View;
 
 /**
- * Listener may use this event to alter the engine collection.
+ * Emitted when a view is turned into a response, after its template and layout were resolved.
+ *
+ * The controller that created the view is the sender of the event, so that hooks can be attached to
+ * specific controllers.
  */
 final class AlterEvent extends Event
 {
     /**
-     * @param ControllerAbstract $controller
-     *     The controller can be useful to alter the view. e.g. adjusting locals according to a route action.
+     * @param View $view
+     *     The view to alter.
+     * @param object $controller
+     *     The controller that created the view.
+     * @param Request $request
+     *     The request being responded to. Its context has the route, which can be useful to alter
+     *     the view according to the action.
      */
     public function __construct(
-        View $target,
-        public readonly ControllerAbstract $controller
+        public readonly View $view,
+        object $controller,
+        public readonly Request $request,
     ) {
-        parent::__construct($target);
+        parent::__construct($controller);
     }
 }
