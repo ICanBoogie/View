@@ -16,6 +16,7 @@ use Test\ICanBoogie\View\Acme\ArticlesController;
 use Test\ICanBoogie\View\Acme\PagesController;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 
 final class BasicTest extends TestCase
@@ -109,6 +110,7 @@ final class BasicTest extends TestCase
         $view->into_response($request);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function test_alter_event_is_sent_by_the_controller(): void
     {
         $this->renderer->method('render')->willReturn('');

@@ -5,6 +5,7 @@ namespace Test\ICanBoogie\View\LayoutResolver;
 use ICanBoogie\Render\Renderer;
 use ICanBoogie\Routing\Route;
 use ICanBoogie\View\LayoutResolver;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -20,10 +21,11 @@ final class BasicTest extends TestCase
         $this->renderer = $this->createMock(Renderer::class);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     #[DataProvider('provide_resolve_layout')]
     public function test_resolve_layout(callable $setup, Route $route, string $expected): void
     {
-        $setup($this->renderer);
+        $setup($this->renderer, $this);
         $actual = $this->makeSUT()->resolve_layout($route);
 
         $this->assertEquals($expected, $actual);
@@ -31,7 +33,7 @@ final class BasicTest extends TestCase
 
     public static function provide_resolve_layout(): array // @phpstan-ignore-line
     {
-        $no_setup = fn(MockObject&Renderer $renderer) => $renderer;
+        $no_setup = fn(MockObject&Renderer $renderer, TestCase $test) => $renderer;
 
         return [
 
@@ -42,7 +44,8 @@ final class BasicTest extends TestCase
             ],
 
             "page" => [
-                fn(MockObject&Renderer $renderer) => $renderer
+                fn(MockObject&Renderer $renderer, TestCase $test) => $renderer
+                    ->expects($test->once())
                     ->method('resolve_template')
                     ->with('@page')
                     ->willReturn("whatever"),
@@ -51,7 +54,8 @@ final class BasicTest extends TestCase
             ],
 
             "home" => [
-                fn(MockObject&Renderer $renderer) => $renderer
+                fn(MockObject&Renderer $renderer, TestCase $test) => $renderer
+                    ->expects($test->once())
                     ->method('resolve_template')
                     ->with('@home')
                     ->willReturn("whatever"),
